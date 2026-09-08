@@ -1,0 +1,18 @@
+{
+  "packageId": "com.melitiamarie.iam",
+  "host": "REPLACE_WITH_PUBLISHED_HOST",
+  "name": "I AM",
+  "launcherName": "I AM",
+  "display": "standalone",
+  "themeColor": "#0A0706",
+  "navigationColor": "#0A0706",
+  "backgroundColor": "#0A0706",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "/icon-512.png",
+  "maskableIconUrl": "/icon-512-maskable.png",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap"
+}

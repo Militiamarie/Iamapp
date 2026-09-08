@@ -10,20 +10,26 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1, viewport-fit=cover",
+      },
       { title: APP_NAME },
       { name: "theme-color", content: "#0A0706" },
+      { name: "application-name", content: APP_NAME },
+      { name: "mobile-web-app-capable", content: "yes" },
       {
         name: "description",
         content:
-          "Melitiamarie's temple. Playable NFTs, studio, OpenSea, and a Coinbase on-ramp. Pay the altar in USDC or ETH.",
+          "Melitiamarie's temple. Playable music NFTs, studio, OpenSea, Cash App, and a Coinbase on-ramp. Install on iPhone and Android.",
       },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/__grok/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icon-180.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",

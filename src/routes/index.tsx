@@ -95,6 +95,24 @@ function Temple() {
           body="Write a vow. Vowels burn. Press the remaining letters into a 1/1 plate."
         />
       </section>
+
+      <section className="mt-10 overflow-hidden rounded-xl foil-frame">
+        <div className="relative bg-obsidian px-5 py-8 sm:px-8">
+          <p className="text-[0.65rem] uppercase tracking-[0.22em] text-gold">
+            Carry the house
+          </p>
+          <h2 className="mt-2 text-2xl text-ivory uppercase sm:text-3xl">
+            Install I AM
+          </h2>
+          <p className="mt-2 max-w-lg text-sm text-ash">
+            Home Screen on iPhone. Launcher on Android. Same temple in the
+            browser. Privacy, terms, and support ship with it.
+          </p>
+          <Button asChild className="mt-5">
+            <Link to="/install">Get the app</Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
@@ -105,7 +123,7 @@ function HouseNote({
   title,
   body,
 }: {
-  to: "/house" | "/scan" | "/grimoire" | "/mint" | "/altar" | "/market";
+  to: "/house" | "/scan" | "/grimoire" | "/mint" | "/altar" | "/market" | "/install";
   kicker: string;
   title: string;
   body: string;

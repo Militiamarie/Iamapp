@@ -14,10 +14,14 @@ import { Route as AltarRouteImport } from './routes/altar'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as GrimoireRouteImport } from './routes/grimoire'
 import { Route as HouseRouteImport } from './routes/house'
+import { Route as InstallRouteImport } from './routes/install'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MintRouteImport } from './routes/mint'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as StageRouteImport } from './routes/stage'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VaultRouteImport } from './routes/vault'
 
 const IndexRoute = IndexRouteImport.update({
@@ -45,6 +49,11 @@ const HouseRoute = HouseRouteImport.update({
   path: '/house',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InstallRoute = InstallRouteImport.update({
+  id: '/install',
+  path: '/install',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketRoute = MarketRouteImport.update({
   id: '/market',
   path: '/market',
@@ -55,6 +64,11 @@ const MintRoute = MintRouteImport.update({
   path: '/mint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
@@ -63,6 +77,16 @@ const ScanRoute = ScanRouteImport.update({
 const StageRoute = StageRouteImport.update({
   id: '/stage',
   path: '/stage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VaultRoute = VaultRouteImport.update({
@@ -77,10 +101,14 @@ export interface FileRoutesByFullPath {
   '/feed': typeof FeedRoute
   '/grimoire': typeof GrimoireRoute
   '/house': typeof HouseRoute
+  '/install': typeof InstallRoute
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
+  '/privacy': typeof PrivacyRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
 }
 export interface FileRoutesByTo {
@@ -89,10 +117,14 @@ export interface FileRoutesByTo {
   '/feed': typeof FeedRoute
   '/grimoire': typeof GrimoireRoute
   '/house': typeof HouseRoute
+  '/install': typeof InstallRoute
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
+  '/privacy': typeof PrivacyRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
 }
 export interface FileRoutesById {
@@ -102,10 +134,14 @@ export interface FileRoutesById {
   '/feed': typeof FeedRoute
   '/grimoire': typeof GrimoireRoute
   '/house': typeof HouseRoute
+  '/install': typeof InstallRoute
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
+  '/privacy': typeof PrivacyRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
 }
 export interface FileRouteTypes {
@@ -116,10 +152,14 @@ export interface FileRouteTypes {
     | '/feed'
     | '/grimoire'
     | '/house'
+    | '/install'
     | '/market'
     | '/mint'
+    | '/privacy'
     | '/scan'
     | '/stage'
+    | '/support'
+    | '/terms'
     | '/vault'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,10 +168,14 @@ export interface FileRouteTypes {
     | '/feed'
     | '/grimoire'
     | '/house'
+    | '/install'
     | '/market'
     | '/mint'
+    | '/privacy'
     | '/scan'
     | '/stage'
+    | '/support'
+    | '/terms'
     | '/vault'
   id:
     | '__root__'
@@ -140,10 +184,14 @@ export interface FileRouteTypes {
     | '/feed'
     | '/grimoire'
     | '/house'
+    | '/install'
     | '/market'
     | '/mint'
+    | '/privacy'
     | '/scan'
     | '/stage'
+    | '/support'
+    | '/terms'
     | '/vault'
   fileRoutesById: FileRoutesById
 }
@@ -153,10 +201,14 @@ export interface RootRouteChildren {
   FeedRoute: typeof FeedRoute
   GrimoireRoute: typeof GrimoireRoute
   HouseRoute: typeof HouseRoute
+  InstallRoute: typeof InstallRoute
   MarketRoute: typeof MarketRoute
   MintRoute: typeof MintRoute
+  PrivacyRoute: typeof PrivacyRoute
   ScanRoute: typeof ScanRoute
   StageRoute: typeof StageRoute
+  SupportRoute: typeof SupportRoute
+  TermsRoute: typeof TermsRoute
   VaultRoute: typeof VaultRoute
 }
 
@@ -197,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HouseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/install': {
+      id: '/install'
+      path: '/install'
+      fullPath: '/install'
+      preLoaderRoute: typeof InstallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/market': {
       id: '/market'
       path: '/market'
@@ -211,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MintRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scan': {
       id: '/scan'
       path: '/scan'
@@ -223,6 +289,20 @@ declare module '@tanstack/react-router' {
       path: '/stage'
       fullPath: '/stage'
       preLoaderRoute: typeof StageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vault': {
@@ -241,10 +321,14 @@ const rootRouteChildren: RootRouteChildren = {
   FeedRoute: FeedRoute,
   GrimoireRoute: GrimoireRoute,
   HouseRoute: HouseRoute,
+  InstallRoute: InstallRoute,
   MarketRoute: MarketRoute,
   MintRoute: MintRoute,
+  PrivacyRoute: PrivacyRoute,
   ScanRoute: ScanRoute,
   StageRoute: StageRoute,
+  SupportRoute: SupportRoute,
+  TermsRoute: TermsRoute,
   VaultRoute: VaultRoute,
 }
 export const routeTree = rootRouteImport

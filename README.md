@@ -1,29 +1,50 @@
 # I AM
 
-Melitiamarie’s temple. A playable NFT house — music, beats, spells, sigils — with a studio booth, OpenSea rails, and a Coinbase / Cash App on-ramp.
+Melitiamarie’s temple. Play the tape. Scan a rail. Collect the 1/1.
 
-## Play
+Live source: [github.com/Militiamarie/Iamapp](https://github.com/Militiamarie/Iamapp)
 
-Every plate in the market plays her tape. Collect into the vault. Press a new 1/1 in **Studio** by dropping audio or recording in the booth.
+## On the web
 
-**Altar** is the one nave: on-ramp (buy USDC / ETH on Coinbase), OpenSea list + profile, Cash App, scan, studio.
+Publish this project from Grok Build to receive a public `*.grok.me` address (suggested slug: `iam` → `iam.grok.me`). Anyone with the link can open the house in a browser.
 
-Demo vault settles inside the house. Coinbase, Cash App, and OpenSea are the live rails — nothing is custodied here.
+## Install as an app
 
-## Publish as a website
+- **iPhone / iPad** — Safari → Share → Add to Home Screen
+- **Android** — Chrome → Install app
+- In the house: **Get app**
 
-1. This repo is already on GitHub.
-2. Import it on [Vercel](https://vercel.com/new) (Framework: Vite / Other, build `npm run build`, output from Nitro’s Vercel preset).
-3. Assign a domain.
+That is a real app icon, fullscreen, with the same temple. Native **App Store** and **Google Play** listings need Melitiamarie’s Apple Developer and Google Play Console accounts. Listing copy, privacy, terms, and support URLs are in [`store/LISTING.md`](store/LISTING.md).
 
-```bash
-npm install
-npm run dev      # local
-npm run build    # production
-```
+## What’s inside
 
-Requires Node 22.
+| Room | What it does |
+| --- | --- |
+| Temple | Featured plates and the door into the house |
+| House | Profile, wall, grid, stills |
+| Feed | House posts |
+| Scan | Camera QR / barcode for Cash App, Coinbase, OpenSea |
+| Market | Collect music, beats, spells, sigils, deity work, quotes |
+| Altar | Demo vault + Coinbase / Cash App / OpenSea rails |
+| Studio | Press a 1/1 — drop audio or record in the booth |
+| Grimoire | Reduce an intent into a gold-and-magenta plate |
+| Stage | Rites, 528Hz nave, shoutouts |
+| Vault | What you collected on this device |
+
+Demo USDC / ETH in the vault is house credit, not real money. Coinbase, Cash App, and OpenSea are the live rails — nothing is custodied here.
+
+## Legal
+
+- [Privacy](/privacy)
+- [Terms](/terms)
+- [Support](/support)
 
 ## Stack
 
-TanStack Start · React 19 · Tailwind v4 · Zustand.
+TanStack Start · React 19 · Tailwind v4 · Zustand. Node 22.
+
+```bash
+npm install
+npm run dev
+npm run build
+```
