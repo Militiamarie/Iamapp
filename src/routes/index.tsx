@@ -1,15 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { CatalogCard } from "@/components/catalog-card";
+import { HouseLinks } from "@/components/house-links";
 import { Button } from "@/components/ui/button";
-import { FEATURED_IDS, SEED } from "@/lib/catalog";
+import { FEATURED_IDS, mergeCatalog } from "@/lib/catalog";
 import { useIam } from "@/lib/store";
 
 export const Route = createFileRoute("/")({ component: Temple });
 
 function Temple() {
   const minted = useIam((s) => s.minted);
-  const catalog = [...minted, ...SEED];
+  const catalog = mergeCatalog(minted);
   const featured = FEATURED_IDS.map((id) =>
     catalog.find((c) => c.id === id),
   ).filter(Boolean);
@@ -31,17 +32,24 @@ function Temple() {
             I AM
           </h1>
           <p className="mt-3 max-w-md font-display text-lg tracking-wide text-ivory sm:text-xl">
-            Her house. Play the tape. Scan a rail. Collect the 1/1.
+            Playable 1/1s. Trade on OpenSea. Mint your own.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild>
               <Link to="/market">Play the catalog</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/altar">Open the altar</Link>
+              <Link to="/mint">Mint yours</Link>
             </Button>
           </div>
         </div>
+      </section>
+
+      <section className="mt-8">
+        <p className="text-[0.65rem] uppercase tracking-[0.22em] text-magenta">
+          The tapes live here
+        </p>
+        <HouseLinks className="mt-3 flex flex-wrap gap-2" />
       </section>
 
       <div className="foil-rule my-10" />
@@ -73,26 +81,26 @@ function Temple() {
         <HouseNote
           to="/altar"
           kicker="Altar"
-          title="One house"
-          body="Studio, OpenSea, Coinbase on-ramp, Cash App. Collect here. Trade live."
+          title="Make money"
+          body="10% house royalty. List on OpenSea. Coinbase, Cash App, MetaMask."
         />
         <HouseNote
           to="/market"
           kicker="Tapes"
-          title="Play"
-          body="Every plate plays Melitiamarie. Collect the 1/1. Drop your own in studio."
+          title="Playable 1/1s"
+          body="Every plate plays. Collect it. Share the drop. Trade it live."
         />
         <HouseNote
-          to="/house"
-          kicker="House"
-          title="Profile"
-          body="Wall, grid, and feed. Grade stills. Pin a line. Leave a comment."
+          to="/mint"
+          kicker="Studio"
+          title="Make yours"
+          body="Social house. Press your own playable 1/1 from a tape or YouTube."
         />
         <HouseNote
           to="/grimoire"
           kicker="Reducer"
           title="Grimoire"
-          body="Write a vow. Vowels burn. Press the remaining letters into a 1/1 plate."
+          body="Write a vow. Vowels burn. The remaining letters lock into a plate."
         />
       </section>
 

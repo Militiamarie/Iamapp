@@ -7,9 +7,12 @@ export const HOUSE = {
   github: "https://github.com/Militiamarie/Iamapp",
   x: "https://x.com/melitiamarie",
   instagram: "https://instagram.com/militiamarie333",
+  instagramAlt: "https://instagram.com/iammelitia_marie444",
   youtube: "https://www.youtube.com/@Melitiamarie",
   soundcloud: "https://soundcloud.com/melitiamarie",
   bandlab: "https://www.bandlab.com/melitiamarie_",
+  rapchat: "https://rapchat.com/profile/AA30FDF0-2257-11ED-A1F1-C717B731CF00",
+  rapfame: "https://rapfame.app/user/melitiamarie333",
 } as const;
 
 export function liveOrigin() {

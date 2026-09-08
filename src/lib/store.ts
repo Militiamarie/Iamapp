@@ -4,6 +4,7 @@ import { HOUSE_ARTIST, MINT_FEE_USDC, mergeCatalog } from "./catalog";
 import { roundEth, roundUsdc, usdcToEth } from "./format";
 import type { ScanHit } from "./rails";
 import { plateFor, proceduralCover } from "./sigil";
+import { HOUSE } from "./site";
 import type {
   CatalogItem,
   ChainCollect,
@@ -46,6 +47,7 @@ type IamState = {
   posts: HousePost[];
   collects: ChainCollect[];
   connect: () => void;
+  connectChain: (address: string, provider: Wallet["provider"]) => void;
   disconnect: () => void;
   pay: (rail: Rail, usdc: number) => boolean;
   buyItem: (itemId: string, rail: Rail) => boolean;
@@ -77,6 +79,7 @@ const emptyWallet: Wallet = {
   address: "",
   usdc: 250,
   eth: 0.12,
+  provider: "",
 };
 
 export const DEFAULT_PROFILE: HouseProfile = {
@@ -90,11 +93,13 @@ export const DEFAULT_PROFILE: HouseProfile = {
     cashapp: "",
     coinbase: "",
     opensea: "",
-    instagram: "https://instagram.com/militiamarie333",
-    youtube: "https://www.youtube.com/@Melitiamarie",
-    soundcloud: "https://soundcloud.com/melitiamarie",
-    bandlab: "https://www.bandlab.com/melitiamarie_",
-    x: "https://x.com/melitiamarie",
+    instagram: HOUSE.instagram,
+    youtube: HOUSE.youtube,
+    soundcloud: HOUSE.soundcloud,
+    bandlab: HOUSE.bandlab,
+    x: HOUSE.x,
+    rapchat: HOUSE.rapchat,
+    rapfame: HOUSE.rapfame,
   },
 };
 
@@ -182,6 +187,20 @@ export const useIam = create<IamState>()(
             ...wallet,
             address,
             connected: true,
+            provider: wallet.provider || "demo",
+            usdc: wallet.address ? wallet.usdc : emptyWallet.usdc,
+            eth: wallet.address ? wallet.eth : emptyWallet.eth,
+          },
+        });
+      },
+      connectChain: (address, provider) => {
+        const { wallet } = get();
+        set({
+          wallet: {
+            ...wallet,
+            address,
+            connected: true,
+            provider,
             usdc: wallet.address ? wallet.usdc : emptyWallet.usdc,
             eth: wallet.address ? wallet.eth : emptyWallet.eth,
           },
@@ -426,6 +445,11 @@ export function hydrateIam() {
         ...DEFAULT_PROFILE,
         ...(s.profile ?? {}),
         links: { ...DEFAULT_PROFILE.links, ...(s.profile?.links ?? {}) },
+      },
+      wallet: {
+        ...emptyWallet,
+        ...(s.wallet ?? {}),
+        provider: s.wallet?.provider ?? (s.wallet?.connected ? "demo" : ""),
       },
       posts: (s.posts?.length ? s.posts : SEED_POSTS).map(normalizePost),
       collects: s.collects ?? [],

@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { Check, Pause, Play } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Check, Pause, Play, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { CheckoutDialog } from "@/components/checkout-dialog";
 import { SigilMark } from "@/components/sigil-mark";
 import { Button } from "@/components/ui/button";
 import { isPlayable, mergeCatalog } from "@/lib/catalog";
 import { formatUsdc, kindLabel } from "@/lib/format";
+import {
+  nftMeta,
+  openSeaFindUrl,
+  openSeaListUrl,
+  shareDrop,
+} from "@/lib/nft";
 import { asPlaySource, usePlayer } from "@/lib/player";
 import { useIam } from "@/lib/store";
 import type { CatalogItem } from "@/lib/types";
@@ -29,6 +36,7 @@ export function CatalogCard({
   const active = current?.id === item.id;
   const live = active && playing;
   const canPlay = isPlayable(item);
+  const meta = nftMeta(item);
 
   function onPlay() {
     if (active) {
@@ -60,7 +68,7 @@ export function CatalogCard({
         ) : null}
         <div className="pointer-events-none absolute inset-0 scrim-b" />
         <span className="absolute top-3 left-3 rounded-sm bg-void/70 px-2 py-1 font-sans text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-          {kindLabel(item.kind)}
+          {kindLabel(item.kind)} · 1/1
         </span>
         {item.kind === "quote" && item.quote ? (
           <p className="pointer-events-none absolute inset-x-4 bottom-4 font-display text-lg leading-snug tracking-wide text-ivory">
@@ -93,8 +101,7 @@ export function CatalogCard({
             {item.title}
           </h3>
           <p className="mt-1 text-xs uppercase tracking-[0.16em] text-gold-dim">
-            {item.creator} · ed. {item.edition}
-            {item.audioName ? ` · ${item.audioName}` : ""}
+            {item.creator} · #{meta.tokenId} · {meta.chain}
           </p>
         </div>
         <p className="line-clamp-3 flex-1 text-sm text-ash">{item.blurb}</p>
@@ -113,17 +120,49 @@ export function CatalogCard({
             </Button>
           )}
         </div>
+        <div className="grid grid-cols-3 gap-1">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/drop/$itemId" params={{ itemId: item.id }}>
+              Drop
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <a href={openSeaFindUrl(item.title, item.creator)} target="_blank" rel="noreferrer">
+              Trade
+            </a>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              const result = await shareDrop(item);
+              if (result === "copied") toast("Drop link copied");
+            }}
+          >
+            <Share2 className="size-3.5" />
+            Share
+          </Button>
+        </div>
       </div>
       <CheckoutDialog
         open={open}
         onOpenChange={setOpen}
         title={item.title}
-        blurb={`ed. ${item.edition}`}
+        blurb={`1/1 · #${meta.tokenId} · ${meta.chain}`}
         priceUsdc={item.priceUsdc}
-        confirmLabel="Collect"
+        confirmLabel="Collect 1/1"
         onConfirm={(rail) => {
           const ok = buyItem(item.id, rail);
-          if (ok) toast(`Collected · ${item.title}`);
+          if (ok) {
+            toast(`Collected · ${item.title}`, {
+              action: {
+                label: "OpenSea",
+                onClick: () => {
+                  window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+                },
+              },
+            });
+          }
           return ok;
         }}
       />

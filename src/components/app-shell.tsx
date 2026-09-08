@@ -17,6 +17,7 @@ import { DripVeil } from "@/components/drip-veil";
 import { HouseFooter } from "@/components/house-footer";
 import { InstallPrompt } from "@/components/install-prompt";
 import { NowPlaying } from "@/components/now-playing";
+import { Oracle } from "@/components/oracle";
 import { WalletButton } from "@/components/wallet-button";
 import { usePlayer } from "@/lib/player";
 import { hydrateIam } from "@/lib/store";
@@ -82,6 +83,7 @@ export function AppShell() {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-2">
+            <Oracle />
             <Link
               to="/install"
               aria-label="Get the app"

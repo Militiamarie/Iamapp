@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { HOUSE_ARTIST, MINT_FEE_USDC } from "@/lib/catalog";
 import { formatUsdc } from "@/lib/format";
+import { parseYoutubeId } from "@/lib/media";
+import { openSeaListUrl } from "@/lib/nft";
 import { reduceIntent } from "@/lib/sigil";
 import { useIam } from "@/lib/store";
 import { KINDS, type Kind } from "@/lib/types";
@@ -26,15 +28,17 @@ function MintStudio() {
   const [quote, setQuote] = useState("");
   const [intent, setIntent] = useState("");
   const [tape, setTape] = useState<TapePick | null>(null);
+  const [youtube, setYoutube] = useState("");
   const [open, setOpen] = useState(false);
 
   const reduced = useMemo(() => reduceIntent(intent), [intent]);
   const priceUsdc = Math.max(1, Number(price) || 1);
+  const youtubeId = parseYoutubeId(youtube);
   const needsTape = kind === "music" || kind === "beat";
   const canPress =
     title.trim().length > 1 &&
     blurb.trim().length > 3 &&
-    (!needsTape || Boolean(tape));
+    (!needsTape || Boolean(tape) || Boolean(youtubeId));
 
   return (
     <div className="pt-6 sm:pt-10">
@@ -43,13 +47,13 @@ function MintStudio() {
       </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Mint</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Drop a tape or record in the booth, then press a playable 1/1 into the
-        market and vault. The altar takes {formatUsdc(MINT_FEE_USDC)} to stamp.
-        List it on OpenSea from the{" "}
+        Drop a tape, record in the booth, or paste a YouTube link, then press a
+        playable 1/1 into the market. Anyone in the house can mint. The altar
+        takes {formatUsdc(MINT_FEE_USDC)} to stamp. List it on OpenSea from the{" "}
         <Link to="/altar" className="text-gold">
           altar
-        </Link>
-        .
+        </Link>{" "}
+        so collectors can trade it.
       </p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
@@ -92,6 +96,19 @@ function MintStudio() {
                 }
               }}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="yt">YouTube (playable 1/1)</Label>
+            <Input
+              id="yt"
+              value={youtube}
+              onChange={(e) => setYoutube(e.target.value)}
+              placeholder="https://youtube.com/watch?v=…"
+            />
+            {youtube.trim().length > 11 && !youtubeId ? (
+              <p className="mt-1 text-xs text-magenta">Paste a watch URL or 11-character id.</p>
+            ) : null}
           </div>
 
           <div>
@@ -205,6 +222,10 @@ function MintStudio() {
             <p className="mt-3 text-xs uppercase tracking-[0.14em] text-gold">
               Playable · {tape.name}
             </p>
+          ) : youtubeId ? (
+            <p className="mt-3 text-xs uppercase tracking-[0.14em] text-gold">
+              Playable · YouTube {youtubeId}
+            </p>
           ) : (
             <p className="mt-3 text-xs uppercase tracking-[0.14em] text-ash">
               No tape yet
@@ -240,11 +261,19 @@ function MintStudio() {
               reduced: kind === "sigil" ? reduced : undefined,
               tapeId: tape?.tapeId,
               audioName: tape?.name,
+              youtubeId,
             },
             rail,
           );
           if (!item) return false;
-          toast(`Pressed · ${item.title}`);
+          toast(`Pressed · ${item.title}`, {
+            action: {
+              label: "OpenSea",
+              onClick: () => {
+                window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+              },
+            },
+          });
           void navigate({ to: "/vault" });
           return true;
         }}

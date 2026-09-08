@@ -7,8 +7,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { WalletChoices } from "@/components/wallet-button";
 import { formatEth, formatRail, formatUsdc, usdcToEth } from "@/lib/format";
-import { cashAppHome, coinbaseBuyEth, coinbaseBuyUsdc } from "@/lib/onramp";
+import { cashAppHome, coinbaseBuyEth, coinbaseBuyUsdc, openSeaCreate } from "@/lib/onramp";
 import { cashPayUrl } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 import type { Rail } from "@/lib/types";
@@ -32,7 +33,6 @@ export function CheckoutDialog({
   onConfirm: (rail: Rail) => boolean;
 }) {
   const wallet = useIam((s) => s.wallet);
-  const connect = useIam((s) => s.connect);
   const profile = useIam((s) => s.profile);
   const [rail, setRail] = useState<Rail>("USDC");
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +70,8 @@ export function CheckoutDialog({
         <DialogTitle>Checkout</DialogTitle>
         <DialogDescription>
           {title}
-          {blurb ? ` — ${blurb}` : ""} Demo vault here. Coinbase / Cash App for
-          live rails.
+          {blurb ? ` — ${blurb}` : ""} Collect as a 1/1. List on OpenSea after.
+          Coinbase / Cash App for live rails.
         </DialogDescription>
 
         <div className="mt-4 flex flex-col gap-3">
@@ -99,9 +99,7 @@ export function CheckoutDialog({
               Vault · {formatUsdc(wallet.usdc)} · {formatEth(wallet.eth)}
             </p>
           ) : (
-            <p className="text-xs text-ash">
-              Connect a demo wallet to settle in the house.
-            </p>
+            <WalletChoices />
           )}
 
           {error ? <p className="text-xs text-magenta">{error}</p> : null}
@@ -115,18 +113,17 @@ export function CheckoutDialog({
             >
               {afford ? confirmLabel : "Insufficient"}
             </Button>
-          ) : (
-            <Button
-              variant="gold"
-              className="mt-1 w-full"
-              onClick={() => {
-                connect();
-                setError(null);
-              }}
-            >
-              Connect vault
-            </Button>
-          )}
+          ) : null}
+
+          <a
+            href={openSeaCreate()}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
+          >
+            List on OpenSea · 10% royalty
+            <ExternalLink className="size-3" />
+          </a>
 
           {!afford && wallet.connected ? (
             <div className="mt-1 flex flex-col gap-2">

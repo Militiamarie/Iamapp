@@ -4,6 +4,7 @@ import { CatalogCard } from "@/components/catalog-card";
 import { Button } from "@/components/ui/button";
 import { mergeCatalog } from "@/lib/catalog";
 import { formatRail } from "@/lib/format";
+import { openSeaListUrl } from "@/lib/nft";
 import { useIam } from "@/lib/store";
 
 export const Route = createFileRoute("/vault")({ component: Vault });
@@ -28,12 +29,9 @@ function Vault() {
       </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Vault</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Pieces you collected or pressed live on this device. Play them. Stage
-        tickets sit beside them. List a 1/1 from the{" "}
-        <Link to="/altar" className="text-gold">
-          altar
-        </Link>
-        .
+        Pieces you collected or pressed live on this device. Play them. List a
+        1/1 on OpenSea so collectors can trade it — 10% royalty returns to the
+        house. Stage tickets sit beside them.
       </p>
 
       {ready && items.length === 0 ? (
@@ -44,7 +42,15 @@ function Vault() {
           </Button>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
+        <>
+          <div className="mt-4">
+            <Button asChild variant="outline">
+              <a href={openSeaListUrl()} target="_blank" rel="noreferrer">
+                List a 1/1 on OpenSea
+              </a>
+            </Button>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
           {items.map((row) =>
             row ? (
               <div key={row.rec.itemId + row.rec.at} className="flex flex-col">
@@ -55,7 +61,8 @@ function Vault() {
               </div>
             ) : null,
           )}
-        </div>
+          </div>
+        </>
       )}
 
       {tickets.length > 0 ? (

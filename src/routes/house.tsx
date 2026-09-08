@@ -4,6 +4,7 @@ import { ExternalLink, Flame, MapPin, Pencil, QrCode, ScanLine, Stamp } from "lu
 import { toast } from "sonner";
 import { CollectCard } from "@/components/collect-card";
 import { Composer } from "@/components/composer";
+import { HouseLinks } from "@/components/house-links";
 import { PostCard } from "@/components/post-card";
 import { ProfileEdit } from "@/components/profile-edit";
 import { RailQr } from "@/components/rail-qr";
@@ -48,22 +49,6 @@ function House() {
   );
   const grid = useMemo(() => posts.filter((p) => p.image), [posts]);
   const rails = houseRails(profile);
-  const socials = [
-    profile.links.instagram
-      ? { label: "Instagram", href: profile.links.instagram }
-      : null,
-    profile.links.youtube
-      ? { label: "YouTube", href: profile.links.youtube }
-      : null,
-    profile.links.soundcloud
-      ? { label: "SoundCloud", href: profile.links.soundcloud }
-      : null,
-    profile.links.bandlab
-      ? { label: "BandLab", href: profile.links.bandlab }
-      : null,
-    profile.links.x ? { label: "X", href: profile.links.x } : null,
-  ].filter(Boolean);
-
   const cash = profile.links.cashapp
     ? {
         label: "Cash App",
@@ -178,22 +163,8 @@ function House() {
                 </a>
               </li>
             ))}
-          {socials.map((r) =>
-            r ? (
-              <li key={r.label}>
-                <a
-                  href={r.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
-                >
-                  {r.label}
-                  <ExternalLink className="size-3" />
-                </a>
-              </li>
-            ) : null,
-          )}
         </ul>
+        <HouseLinks className="mt-3 flex flex-wrap gap-2" />
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2">

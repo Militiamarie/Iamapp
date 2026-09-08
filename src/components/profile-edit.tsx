@@ -256,6 +256,22 @@ export function ProfileEdit({
                 onChange={(e) => link("x", e.target.value)}
               />
             </div>
+            <div>
+              <Label htmlFor="p-rc">Rapchat</Label>
+              <Input
+                id="p-rc"
+                value={draft.links.rapchat}
+                onChange={(e) => link("rapchat", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="p-rf">Rap Fame</Label>
+              <Input
+                id="p-rf"
+                value={draft.links.rapfame}
+                onChange={(e) => link("rapfame", e.target.value)}
+              />
+            </div>
           </div>
         ) : null}
 

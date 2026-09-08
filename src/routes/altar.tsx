@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ExternalLink,
@@ -6,8 +7,10 @@ import {
   Wallet as WalletIcon,
 } from "lucide-react";
 import { CollectCard } from "@/components/collect-card";
+import { HouseLinks } from "@/components/house-links";
 import { RailQr } from "@/components/rail-qr";
 import { Button } from "@/components/ui/button";
+import { WalletConnectDialog } from "@/components/wallet-button";
 import { formatEth, formatUsdc, shortAddr } from "@/lib/format";
 import {
   cashAppHome,
@@ -24,10 +27,10 @@ export const Route = createFileRoute("/altar")({ component: Altar });
 
 function Altar() {
   const wallet = useIam((s) => s.wallet);
-  const connect = useIam((s) => s.connect);
   const profile = useIam((s) => s.profile);
   const collects = useIam((s) => s.collects);
   const minted = useIam((s) => s.minted);
+  const [picker, setPicker] = useState(false);
   const rails = houseRails(profile);
   const cash = profile.links.cashapp.trim();
   const os = profile.links.opensea.trim();
@@ -73,9 +76,9 @@ function Altar() {
             </div>
           </>
         ) : (
-          <Button className="mt-3" onClick={() => connect()}>
+          <Button className="mt-3" onClick={() => setPicker(true)}>
             <WalletIcon className="size-3.5" />
-            Connect vault
+            Connect wallet
           </Button>
         )}
       </section>
@@ -148,6 +151,15 @@ function Altar() {
       </section>
 
       <section className="mt-10">
+        <h2 className="text-lg text-ivory uppercase">Tapes live here</h2>
+        <p className="mt-1 max-w-xl text-sm text-ash">
+          Instagram, YouTube, BandLab, Rapchat, Rap Fame — every page that holds
+          the music.
+        </p>
+        <HouseLinks className="mt-4 flex flex-wrap gap-2" />
+      </section>
+
+      <section className="mt-10">
         <h2 className="text-lg text-ivory uppercase">Studio</h2>
         <p className="mt-1 max-w-xl text-sm text-ash">
           Drop a tape or record in the booth. Stamp a playable 1/1 into the
@@ -192,6 +204,7 @@ function Altar() {
           </ul>
         </section>
       ) : null}
+      <WalletConnectDialog open={picker} onOpenChange={setPicker} />
     </div>
   );
 }

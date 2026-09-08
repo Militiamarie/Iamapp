@@ -36,15 +36,14 @@ function Market() {
       </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Market</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Music, beats, spells, sigils, deity work, quotes — every plate plays
-        Melitiamarie. Collect on demo USDC or ETH. On-ramp and OpenSea live on
-        the{" "}
-        <Link to="/altar" className="text-gold">
-          altar
-        </Link>
-        . Press a new tape in the{" "}
+        Playable 1/1 music NFTs — collect, share the drop, trade on OpenSea.
+        MetaMask, Coinbase Wallet, or the house vault. Press your own in the{" "}
         <Link to="/mint" className="text-gold">
           studio
+        </Link>
+        . Live rails on the{" "}
+        <Link to="/altar" className="text-gold">
+          altar
         </Link>
         .
       </p>

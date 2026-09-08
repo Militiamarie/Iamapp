@@ -165,25 +165,74 @@ export function buildSigil(reduced: string): SigilStroke[] {
   const letters = (reduced || "I").split("");
   const seed = hashSeed(reduced || "IAM");
   const strokes: SigilStroke[] = [];
-  const n = letters.length;
+  const n = Math.max(letters.length, 1);
   const cx = 100;
   const cy = 100;
+  const rot = ((seed % 40) / 40) * 0.4;
 
-  strokes.push({
-    d: `M ${cx} ${cy} m -78 0 a 78 78 0 1 1 156 0 a 78 78 0 1 1 -156 0`,
-    gold: true,
-  });
-  strokes.push({
-    d: `M ${cx} ${cy} m -54 0 a 54 54 0 1 1 108 0 a 54 54 0 1 1 -108 0`,
-    gold: false,
-  });
+  function polar(r: number, a: number) {
+    return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+  }
+
+  function ring(r: number, gold: boolean) {
+    strokes.push({
+      d: `M ${cx} ${cy} m ${-r} 0 a ${r} ${r} 0 1 1 ${r * 2} 0 a ${r} ${r} 0 1 1 ${-r * 2} 0`,
+      gold,
+    });
+  }
+
+  function poly(r: number, sides: number, spin: number, gold: boolean) {
+    const parts: string[] = [];
+    for (let i = 0; i <= sides; i++) {
+      const a = spin + (i / sides) * Math.PI * 2 - Math.PI / 2;
+      const p = polar(r, a);
+      parts.push(`${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
+    }
+    parts.push("Z");
+    strokes.push({ d: parts.join(" "), gold });
+  }
+
+  function star(rOuter: number, rInner: number, points: number, spin: number, gold: boolean) {
+    const parts: string[] = [];
+    const total = points * 2;
+    for (let i = 0; i <= total; i++) {
+      const r = i % 2 === 0 ? rOuter : rInner;
+      const a = spin + (i / total) * Math.PI * 2 - Math.PI / 2;
+      const p = polar(r, a);
+      parts.push(`${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
+    }
+    parts.push("Z");
+    strokes.push({ d: parts.join(" "), gold });
+  }
+
+  ring(88, true);
+  ring(78, true);
+  ring(62, false);
+  ring(36, true);
+  ring(14, false);
+
+  const ticks = 24;
+  for (let i = 0; i < ticks; i++) {
+    const a = (i / ticks) * Math.PI * 2 + rot;
+    const major = i % 6 === 0;
+    const inner = polar(major ? 70 : 74, a);
+    const outer = polar(88, a);
+    strokes.push({
+      d: `M ${inner.x.toFixed(1)} ${inner.y.toFixed(1)} L ${outer.x.toFixed(1)} ${outer.y.toFixed(1)}`,
+      gold: major,
+    });
+  }
+
+  const starPoints = 5 + (seed % 3);
+  star(54, 22, starPoints, rot, true);
+  poly(46, 6, rot + 0.2, false);
 
   letters.forEach((ch, i) => {
     const glyph = GLYPHS[ch] ?? GLYPHS.X;
-    const angle = (i / Math.max(n, 1)) * Math.PI * 2 + ((seed % 40) / 40) * 0.4;
-    const scale = 36 + (seed % 7);
-    const ox = cx + Math.cos(angle) * 8;
-    const oy = cy + Math.sin(angle) * 8;
+    const angle = (i / n) * Math.PI * 2 + rot;
+    const scale = 28 + (seed % 6);
+    const ox = cx + Math.cos(angle) * 10;
+    const oy = cy + Math.sin(angle) * 10;
     const parts: string[] = [];
     for (const [x1, y1, x2, y2] of glyph) {
       const rx1 = (x1 - 0.5) * scale;
@@ -199,18 +248,43 @@ export function buildSigil(reduced: string): SigilStroke[] {
       parts.push(`M ${ax.toFixed(1)} ${ay.toFixed(1)} L ${bx.toFixed(1)} ${by.toFixed(1)}`);
     }
     strokes.push({ d: parts.join(" "), gold: i % 2 === 0 });
-  });
 
-  const spokes = 3 + (seed % 4);
-  for (let i = 0; i < spokes; i++) {
-    const a = (i / spokes) * Math.PI * 2 + 0.2;
-    const x2 = cx + Math.cos(a) * 78;
-    const y2 = cy + Math.sin(a) * 78;
+    const node = polar(78, angle);
     strokes.push({
-      d: `M ${cx} ${cy} L ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+      d: `M ${cx} ${cy} L ${node.x.toFixed(1)} ${node.y.toFixed(1)}`,
       gold: i % 2 === 1,
     });
+    const next = polar(78, ((i + 1) / n) * Math.PI * 2 + rot);
+    strokes.push({
+      d: `M ${node.x.toFixed(1)} ${node.y.toFixed(1)} L ${next.x.toFixed(1)} ${next.y.toFixed(1)}`,
+      gold: false,
+    });
+  });
+
+  const spokes = 4 + (seed % 3);
+  for (let i = 0; i < spokes; i++) {
+    const a = (i / spokes) * Math.PI * 2 + 0.35 + rot;
+    const inner = polar(14, a);
+    const outer = polar(88, a);
+    strokes.push({
+      d: `M ${inner.x.toFixed(1)} ${inner.y.toFixed(1)} L ${outer.x.toFixed(1)} ${outer.y.toFixed(1)}`,
+      gold: i % 2 === 0,
+    });
   }
+
+  const cardinals = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+  for (const a of cardinals) {
+    const p = polar(88, a + rot);
+    strokes.push({
+      d: `M ${p.x.toFixed(1)} ${(p.y - 4).toFixed(1)} L ${(p.x + 3.2).toFixed(1)} ${(p.y + 2.2).toFixed(1)} L ${(p.x - 3.2).toFixed(1)} ${(p.y + 2.2).toFixed(1)} Z`,
+      gold: true,
+    });
+  }
+
+  strokes.push({
+    d: `M ${cx} ${cy} m -5 0 a 5 5 0 1 1 10 0 a 5 5 0 1 1 -10 0`,
+    gold: true,
+  });
 
   return strokes;
 }

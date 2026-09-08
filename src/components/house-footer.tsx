@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { HouseLinks } from "@/components/house-links";
 import { HOUSE } from "@/lib/site";
 
 const LINKS = [
@@ -15,6 +16,7 @@ export function HouseFooter() {
         <p className="text-[0.65rem] uppercase tracking-[0.18em] text-ash">
           {HOUSE.name} · {HOUSE.artist}
         </p>
+        <HouseLinks className="flex flex-wrap gap-2" />
         <nav className="flex flex-wrap gap-x-4 gap-y-2">
           {LINKS.map((item) => (
             <Link

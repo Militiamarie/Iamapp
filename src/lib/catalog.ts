@@ -1,3 +1,4 @@
+import { EXTRA_TAPES } from "./tapes";
 import type { CatalogItem, Rite } from "./types";
 
 export const SEED: CatalogItem[] = [
@@ -283,8 +284,8 @@ export const SEED: CatalogItem[] = [
 export const FEATURED_IDS = [
   "knocked-out",
   "she-cold",
-  "woke-up",
-  "nobody",
+  "came-up",
+  "hustla-818",
 ] as const;
 
 export const RITES: Rite[] = [
@@ -331,7 +332,8 @@ export const SHOUT_TIERS = [3, 8, 18] as const;
 
 export function mergeCatalog(minted: CatalogItem[]): CatalogItem[] {
   const mintedIds = new Set(minted.map((m) => m.id));
-  return [...minted, ...SEED.filter((s) => !mintedIds.has(s.id))];
+  const base = [...SEED, ...EXTRA_TAPES];
+  return [...minted, ...base.filter((s) => !mintedIds.has(s.id))];
 }
 
 export function isPlayable(item: {

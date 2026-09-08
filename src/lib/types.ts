@@ -59,6 +59,7 @@ export type Wallet = {
   address: string;
   usdc: number;
   eth: number;
+  provider: "demo" | "metamask" | "coinbase" | "injected" | "";
 };
 
 export type Rite = {
@@ -83,6 +84,8 @@ export type HouseLinks = {
   soundcloud: string;
   bandlab: string;
   x: string;
+  rapchat: string;
+  rapfame: string;
 };
 
 export type HouseProfile = {

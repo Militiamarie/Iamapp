@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { MINT_FEE_USDC } from "@/lib/catalog";
 import { formatUsdc } from "@/lib/format";
+import { openSeaListUrl } from "@/lib/nft";
 import { reduceIntent } from "@/lib/sigil";
 import { useIam } from "@/lib/store";
 
@@ -177,7 +178,14 @@ function Grimoire() {
             rail,
           );
           if (!item) return false;
-          toast(`Sigil pressed · ${reduced}`);
+          toast(`Sigil pressed · ${reduced}`, {
+            action: {
+              label: "OpenSea",
+              onClick: () => {
+                window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+              },
+            },
+          });
           void navigate({ to: "/vault" });
           return true;
         }}
@@ -227,8 +235,8 @@ function NaveHero() {
           </h1>
           <p className="mt-3 max-w-md text-sm text-ivory sm:text-base">
             Write an intent. Vowels burn. Duplicate consonants fall. The
-            remaining letters lock into a gold-and-magenta plate you press to
-            the vault.
+            remaining letters lock into a gold-and-magenta plate — rings,
+            ticks, and a star — that you press to the vault.
           </p>
         </div>
       </div>

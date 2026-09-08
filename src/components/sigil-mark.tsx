@@ -43,16 +43,37 @@ export function SigilMark({
           d={s.d}
           fill="none"
           stroke={s.gold ? "var(--color-gold)" : "var(--color-magenta)"}
-          strokeWidth={s.gold ? 1.6 : 1.2}
+          strokeWidth={s.gold ? 1.45 : 1.05}
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity={s.gold ? 0.95 : 0.82}
+          opacity={s.gold ? 0.96 : 0.78}
           pathLength={1}
           className="sigil-stroke"
-          style={{ ["--delay" as string]: `${Math.min(i, 14) * 45}ms` }}
+          style={{ ["--delay" as string]: `${Math.min(i, 22) * 28}ms` }}
           filter={s.gold ? `url(#${uid}-glow)` : undefined}
         />
       ))}
+      {(reduced || "IAM").split("").map((ch, i, arr) => {
+        const a = (i / Math.max(arr.length, 1)) * Math.PI * 2 - Math.PI / 2;
+        const x = 100 + Math.cos(a) * 92;
+        const y = 100 + Math.sin(a) * 92;
+        return (
+          <text
+            key={`${ch}-${i}`}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill="var(--color-gold)"
+            fontSize="7"
+            fontFamily="IBM Plex Mono, ui-monospace, monospace"
+            letterSpacing="0.12em"
+            opacity="0.85"
+          >
+            {ch}
+          </text>
+        );
+      })}
     </svg>
   );
 }
