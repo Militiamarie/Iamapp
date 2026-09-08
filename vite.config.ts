@@ -145,7 +145,9 @@ function authPopupPlugin(): Plugin {
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
-export default defineConfig(({ command, isPreview }) => ({
+export default defineConfig(({ command, isPreview }) => {
+  const pages = process.env.NITRO_PRESET === "github-pages";
+  return {
   server: {
     host: "0.0.0.0",
     port: 8080,
@@ -157,7 +159,8 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
-  plugins: [
+    ...(pages ? { build: { assetsDir: "pack" } } : {}),
+    plugins: [
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
     authPopupPlugin(),
@@ -185,4 +188,5 @@ export default defineConfig(({ command, isPreview }) => ({
       : []),
     viteReact(),
   ],
-}));
+  };
+});
