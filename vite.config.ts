@@ -170,11 +170,16 @@ export default defineConfig(({ command, isPreview }) => ({
     ...(command === "build" || isPreview
       ? [
           nitro({
-            preset: "vercel",
+            // Default stays Vercel (Grok + Vercel deploys). GitHub Pages CI
+            // sets NITRO_PRESET=github-pages for a static crawl + 404 fallback.
+            preset: process.env.NITRO_PRESET || "vercel",
             // Auto-registers server/middleware/* (the PWA install page +
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
-            serverDir: "./server",
+            // Static GitHub Pages has no server — skip middleware there.
+            ...((process.env.NITRO_PRESET || "vercel") === "vercel"
+              ? { serverDir: "./server" }
+              : {}),
           }),
         ]
       : []),

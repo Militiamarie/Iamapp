@@ -6,7 +6,9 @@ Live source: [github.com/Militiamarie/Iamapp](https://github.com/Militiamarie/Ia
 
 ## On the web
 
-Publish this project from Grok Build to receive a public `*.grok.me` address (suggested slug: `iam` → `iam.grok.me`). Anyone with the link can open the house in a browser.
+**Live temple:** [militiamarie.github.io](https://militiamarie.github.io)
+
+Anyone with the link can open the house in a browser, play the catalog, and install I AM on their phone.
 
 ## Install as an app
 
