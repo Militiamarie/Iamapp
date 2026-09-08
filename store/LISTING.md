@@ -33,15 +33,15 @@ Demo vault credit lives on your device. Live money and NFTs stay on Coinbase, Ca
 
 ## Support URL
 
-`/support` on the published domain
+https://militiamarie.github.io/support
 
 ## Privacy policy URL
 
-`/privacy` on the published domain
+https://militiamarie.github.io/privacy
 
 ## Marketing URL
 
-`/` on the published domain
+https://militiamarie.github.io/
 
 ## Keywords
 
