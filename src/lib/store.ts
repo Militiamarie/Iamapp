@@ -48,10 +48,15 @@ type IamState = {
   collects: ChainCollect[];
   connect: () => void;
   connectChain: (address: string, provider: Wallet["provider"]) => void;
+  bindAddress: (address: string) => void;
   disconnect: () => void;
   pay: (rail: Rail, usdc: number) => boolean;
   buyItem: (itemId: string, rail: Rail) => boolean;
   mintItem: (draft: MintDraft, rail: Rail) => CatalogItem | null;
+  stampOnchain: (
+    itemId: string,
+    onchain: NonNullable<CatalogItem["onchain"]>,
+  ) => void;
   buyTicket: (showId: string, rail: Rail, priceUsdc: number) => boolean;
   addShout: (name: string, message: string, rail: Rail, usdc: number) => boolean;
   saveProfile: (next: HouseProfile) => void;
@@ -206,6 +211,16 @@ export const useIam = create<IamState>()(
           },
         });
       },
+      bindAddress: (address) => {
+        const { wallet } = get();
+        set({
+          wallet: {
+            ...wallet,
+            address,
+            connected: true,
+          },
+        });
+      },
       disconnect: () => {
         set({ wallet: { ...get().wallet, connected: false } });
       },
@@ -281,6 +296,13 @@ export const useIam = create<IamState>()(
           ],
         });
         return item;
+      },
+      stampOnchain: (itemId, onchain) => {
+        set({
+          minted: get().minted.map((m) =>
+            m.id === itemId ? { ...m, onchain } : m,
+          ),
+        });
       },
       buyTicket: (showId, rail, priceUsdc) => {
         if (get().hasTicket(showId)) return false;

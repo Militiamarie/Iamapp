@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { WalletChoices } from "@/components/wallet-button";
 import { formatEth, formatRail, formatUsdc, usdcToEth } from "@/lib/format";
-import { cashAppHome, coinbaseBuyEth, coinbaseBuyUsdc, openSeaCreate } from "@/lib/onramp";
+import { cashAppHome, coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
 import { cashPayUrl } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 import type { Rail } from "@/lib/types";
@@ -125,37 +125,52 @@ export function CheckoutDialog({
             <ExternalLink className="size-3" />
           </a>
 
-          {!afford && wallet.connected ? (
-            <div className="mt-1 flex flex-col gap-2">
-              <p className="text-[0.65rem] uppercase tracking-[0.16em] text-gold">
-                On-ramp
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <a
-                  href={rail === "ETH" ? coinbaseBuyEth() : coinbaseBuyUsdc()}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
-                >
-                  Buy {rail} on Coinbase
-                  <ExternalLink className="size-3" />
-                </a>
-                <a
-                  href={
-                    cash
-                      ? cashPayUrl(cash.replace(/^\$/, ""), priceUsdc)
-                      : cashAppHome()
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
-                >
-                  Cash App
-                  <ExternalLink className="size-3" />
-                </a>
-              </div>
+          <div className="mt-2 flex flex-col gap-2">
+            <p className="text-xs uppercase tracking-[0.16em] text-gold">
+              Coinbase Onramp
+            </p>
+            <p className="text-xs text-ash">
+              Buy {rail} on Coinbase, then mint or trade on-chain. Demo vault
+              above. Live rails below.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={coinbaseOnramp({
+                  asset: rail,
+                  amountUsd: priceUsdc,
+                  address: wallet.connected ? wallet.address : undefined,
+                })}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
+              >
+                Buy {rail} on Coinbase
+                <ExternalLink className="size-3" />
+              </a>
+              <a
+                href={openSeaCreate()}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
+              >
+                Mint on OpenSea
+                <ExternalLink className="size-3" />
+              </a>
+              <a
+                href={
+                  cash
+                    ? cashPayUrl(cash.replace(/^\$/, ""), priceUsdc)
+                    : cashAppHome()
+                }
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
+              >
+                Cash App
+                <ExternalLink className="size-3" />
+              </a>
             </div>
-          ) : null}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

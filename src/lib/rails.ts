@@ -118,7 +118,7 @@ export function parseScan(input: string): ScanHit {
     }
   }
 
-  if (/coinbase\.com|go\.cb-w\.com|wallet\.coinbase|cbwallet:/i.test(raw)) {
+  if (/coinbase\.com|go\.cb-w\.com|wallet\.coinbase|cbwallet:|pay\.coinbase/i.test(raw)) {
     const eth = raw.match(ETH);
     const url = raw.startsWith("http")
       ? raw

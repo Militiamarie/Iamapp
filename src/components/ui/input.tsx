@@ -12,7 +12,7 @@ export function Input({
   className,
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={cn(field, className)} {...props} />;
+  return <input className={cn(field, className)} suppressHydrationWarning {...props} />;
 }
 
 export function Textarea({

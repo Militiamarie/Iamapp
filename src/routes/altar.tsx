@@ -1,132 +1,68 @@
-import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ExternalLink,
-  ScanLine,
-  Stamp,
-  Wallet as WalletIcon,
-} from "lucide-react";
+import { ExternalLink, Stamp } from "lucide-react";
 import { CollectCard } from "@/components/collect-card";
 import { HouseLinks } from "@/components/house-links";
+import { OnchainVault } from "@/components/onchain-vault";
+import { OnrampPanel } from "@/components/onramp-panel";
 import { RailQr } from "@/components/rail-qr";
+import { ScanDock } from "@/components/scan-dock";
 import { Button } from "@/components/ui/button";
-import { WalletConnectDialog } from "@/components/wallet-button";
-import { formatEth, formatUsdc, shortAddr } from "@/lib/format";
-import {
-  cashAppHome,
-  coinbaseBuyEth,
-  coinbaseBuyUsdc,
-  coinbaseWallet,
-  openSeaCreate,
-  openSeaHome,
-} from "@/lib/onramp";
-import { cashPayUrl, houseRails, openSeaUrl } from "@/lib/rails";
+import { openSeaCreate, openSeaHome } from "@/lib/onramp";
+import { houseRails, openSeaUrl } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 
 export const Route = createFileRoute("/altar")({ component: Altar });
 
 function Altar() {
-  const wallet = useIam((s) => s.wallet);
   const profile = useIam((s) => s.profile);
   const collects = useIam((s) => s.collects);
   const minted = useIam((s) => s.minted);
-  const [picker, setPicker] = useState(false);
   const rails = houseRails(profile);
-  const cash = profile.links.cashapp.trim();
   const os = profile.links.opensea.trim();
   const openSeaProfile = os ? openSeaUrl(os) : openSeaHome();
+  const onBase = minted.filter((m) => m.onchain).length;
 
   return (
     <div className="pt-6 sm:pt-10">
-      <p className="text-[0.65rem] uppercase tracking-[0.22em] text-magenta">
-        One house
-      </p>
-      <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Altar</h1>
+      <p className="text-xs uppercase tracking-[0.22em] text-magenta">Base</p>
+      <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">
+        Onchain
+      </h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Studio, OpenSea, and the on-ramp in one nave. Demo vault collects here.
-        Coinbase, Cash App, and OpenSea are the live rails.
+        Connect Coinbase Wallet or MetaMask. Onramp ETH. Stamp a 1/1 on Base.
+        Trade it on OpenSea. Scanner at the door.
       </p>
 
-      <section className="mt-8 rounded-lg bg-obsidian p-4 foil-frame sm:p-5">
-        <p className="text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-          Vault
-        </p>
-        {wallet.connected ? (
-          <>
-            <p className="mt-2 font-mono text-xs text-ash">
-              {shortAddr(wallet.address)}
-            </p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="rounded-sm bg-void px-3 py-3">
-                <p className="text-[0.6rem] uppercase tracking-[0.16em] text-ash">
-                  USDC
-                </p>
-                <p className="font-sans text-lg tabular-nums text-ivory">
-                  {formatUsdc(wallet.usdc)}
-                </p>
-              </div>
-              <div className="rounded-sm bg-void px-3 py-3">
-                <p className="text-[0.6rem] uppercase tracking-[0.16em] text-ash">
-                  ETH
-                </p>
-                <p className="font-sans text-lg tabular-nums text-ivory">
-                  {formatEth(wallet.eth)}
-                </p>
-              </div>
-            </div>
-          </>
-        ) : (
-          <Button className="mt-3" onClick={() => setPicker(true)}>
-            <WalletIcon className="size-3.5" />
-            Connect wallet
-          </Button>
-        )}
-      </section>
+      <div className="mt-8">
+        <OnchainVault />
+      </div>
 
-      <section className="mt-8">
-        <h2 className="text-lg text-ivory uppercase">On-ramp</h2>
+      <section className="mt-10">
+        <p className="text-xs uppercase tracking-[0.18em] text-gold">Door</p>
+        <h2 className="mt-1 text-lg text-ivory uppercase sm:text-xl">Scanner</h2>
         <p className="mt-1 max-w-xl text-sm text-ash">
-          Buy USDC or ETH on Coinbase. Cash App for the door. Nothing is
-          custodied in this house.
+          Camera on a Cash App cashtag, Coinbase wallet, OpenSea listing, or
+          ETH address. Opens the live rail.
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <RailCard
-            kicker="Coinbase"
-            title="Buy USDC"
-            body="On-ramp dollars to the rail the market settles on."
-            href={coinbaseBuyUsdc()}
-          />
-          <RailCard
-            kicker="Coinbase"
-            title="Buy ETH"
-            body="On-ramp ether. Use it on the altar or send from Coinbase Wallet."
-            href={coinbaseBuyEth()}
-          />
-          <RailCard
-            kicker="Coinbase"
-            title="Wallet"
-            body="Open Coinbase Wallet to send, swap, or hold."
-            href={coinbaseWallet()}
-          />
-          <RailCard
-            kicker="Cash App"
-            title={cash ? `$${cash.replace(/^\$/, "")}` : "Open Cash App"}
-            body="Pay at the door. Flash the house QR from Scan me."
-            href={cash ? cashPayUrl(cash.replace(/^\$/, "")) : cashAppHome()}
-          />
+        <div className="mt-5">
+          <ScanDock />
         </div>
       </section>
+
+      <div className="mt-10">
+        <OnrampPanel />
+      </div>
 
       <section className="mt-10">
         <h2 className="text-lg text-ivory uppercase">OpenSea</h2>
         <p className="mt-1 max-w-xl text-sm text-ash">
-          List a 1/1, open the house profile, or trade a scan. Receipts stay in
-          Collect.
+          Trade a Base 1/1, or mint through OpenSea Studio. House presses wait
+          in the vault to stamp on-chain.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild>
             <a href={openSeaCreate()} target="_blank" rel="noreferrer">
-              List on OpenSea
+              OpenSea Studio
               <ExternalLink className="size-3.5" />
             </a>
           </Button>
@@ -137,15 +73,19 @@ function Altar() {
             </a>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/scan">
-              <ScanLine className="size-3.5" />
-              Scan a listing
+            <Link to="/mint">
+              <Stamp className="size-3.5" />
+              Studio
             </Link>
           </Button>
         </div>
-        {minted.length > 0 ? (
+        {onBase > 0 ? (
           <p className="mt-3 text-xs uppercase tracking-[0.14em] text-gold">
-            {minted.length} pressed 1/1 ready to list
+            {onBase} live on Base
+          </p>
+        ) : minted.length > 0 ? (
+          <p className="mt-3 text-xs uppercase tracking-[0.14em] text-gold">
+            {minted.length} house 1/1 waiting to stamp on Base
           </p>
         ) : null}
       </section>
@@ -157,20 +97,6 @@ function Altar() {
           the music.
         </p>
         <HouseLinks className="mt-4 flex flex-wrap gap-2" />
-      </section>
-
-      <section className="mt-10">
-        <h2 className="text-lg text-ivory uppercase">Studio</h2>
-        <p className="mt-1 max-w-xl text-sm text-ash">
-          Drop a tape or record in the booth. Stamp a playable 1/1 into the
-          market and the vault.
-        </p>
-        <Button asChild className="mt-4">
-          <Link to="/mint">
-            <Stamp className="size-3.5" />
-            Open studio
-          </Link>
-        </Button>
       </section>
 
       {rails.length > 0 ? (
@@ -204,37 +130,6 @@ function Altar() {
           </ul>
         </section>
       ) : null}
-      <WalletConnectDialog open={picker} onOpenChange={setPicker} />
     </div>
-  );
-}
-
-function RailCard({
-  kicker,
-  title,
-  body,
-  href,
-}: {
-  kicker: string;
-  title: string;
-  body: string;
-  href: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-lg bg-obsidian p-4 foil-frame sm:p-5"
-    >
-      <p className="text-[0.65rem] uppercase tracking-[0.18em] text-magenta">
-        {kicker}
-      </p>
-      <h3 className="mt-1 flex items-center gap-2 text-lg text-ivory uppercase">
-        {title}
-        <ExternalLink className="size-3.5 text-gold" />
-      </h3>
-      <p className="mt-2 text-sm text-ash">{body}</p>
-    </a>
   );
 }

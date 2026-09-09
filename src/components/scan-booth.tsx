@@ -203,6 +203,7 @@ export function ScanBooth({
           type="file"
           accept="image/*"
           className="sr-only"
+          suppressHydrationWarning
           onChange={(e) => void takeStill(e.target.files)}
         />
       </label>

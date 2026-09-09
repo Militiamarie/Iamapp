@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Check, Pause, Play, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { CheckoutDialog } from "@/components/checkout-dialog";
+import { OnchainBadge } from "@/components/onchain-vault";
 import { SigilMark } from "@/components/sigil-mark";
 import { Button } from "@/components/ui/button";
 import { isPlayable, mergeCatalog } from "@/lib/catalog";
@@ -70,6 +71,12 @@ export function CatalogCard({
         <span className="absolute top-3 left-3 rounded-sm bg-void/70 px-2 py-1 font-sans text-[0.65rem] uppercase tracking-[0.18em] text-gold">
           {kindLabel(item.kind)} · 1/1
         </span>
+        {item.onchain ? (
+          <OnchainBadge
+            contract={item.onchain.contract}
+            tokenId={item.onchain.tokenId}
+          />
+        ) : null}
         {item.kind === "quote" && item.quote ? (
           <p className="pointer-events-none absolute inset-x-4 bottom-4 font-display text-lg leading-snug tracking-wide text-ivory">
             {item.quote}

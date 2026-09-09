@@ -3,6 +3,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CheckoutDialog } from "@/components/checkout-dialog";
 import { TapeBooth, type TapePick } from "@/components/tape-booth";
+import { OnrampPanel } from "@/components/onramp-panel";
+import { ScanDock } from "@/components/scan-dock";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { HOUSE_ARTIST, MINT_FEE_USDC } from "@/lib/catalog";
@@ -48,12 +50,12 @@ function MintStudio() {
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Mint</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
         Drop a tape, record in the booth, or paste a YouTube link, then press a
-        playable 1/1 into the market. Anyone in the house can mint. The altar
-        takes {formatUsdc(MINT_FEE_USDC)} to stamp. List it on OpenSea from the{" "}
+        playable 1/1 into the market. Stamp it on Base from{" "}
         <Link to="/altar" className="text-gold">
-          altar
-        </Link>{" "}
-        so collectors can trade it.
+          Onchain
+        </Link>
+        . The house takes {formatUsdc(MINT_FEE_USDC)} to press. Coinbase Onramp
+        buys the ETH. Scanner sits under the press.
       </p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
@@ -237,6 +239,22 @@ function MintStudio() {
         </aside>
       </div>
 
+      <div className="mt-12">
+        <OnrampPanel amountUsd={MINT_FEE_USDC} />
+      </div>
+
+      <section className="mt-12">
+        <p className="text-xs uppercase tracking-[0.18em] text-gold">Door</p>
+        <h2 className="mt-1 text-lg text-ivory uppercase">Scanner</h2>
+        <p className="mt-1 max-w-xl text-sm text-ash">
+          Scan a Cash App, Coinbase, or OpenSea code while you press. Trade
+          the listing on-chain. Fund the mint on Coinbase.
+        </p>
+        <div className="mt-5">
+          <ScanDock />
+        </div>
+      </section>
+
       <CheckoutDialog
         open={open}
         onOpenChange={setOpen}
@@ -268,13 +286,13 @@ function MintStudio() {
           if (!item) return false;
           toast(`Pressed · ${item.title}`, {
             action: {
-              label: "OpenSea",
+              label: "Onchain",
               onClick: () => {
-                window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+                void navigate({ to: "/altar" });
               },
             },
           });
-          void navigate({ to: "/vault" });
+          void navigate({ to: "/altar" });
           return true;
         }}
       />

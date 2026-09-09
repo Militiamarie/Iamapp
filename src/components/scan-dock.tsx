@@ -1,0 +1,122 @@
+import { useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { toast } from "sonner";
+import { ScanBooth } from "@/components/scan-booth";
+import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
+import { coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
+import {
+  cashPayUrl,
+  coinbaseSendUrl,
+  hitAction,
+  RAIL_LABEL,
+  type ScanHit,
+} from "@/lib/rails";
+import { useIam } from "@/lib/store";
+
+export function ScanDock({ compact = false }: { compact?: boolean }) {
+  const collectScan = useIam((s) => s.collectScan);
+  const wallet = useIam((s) => s.wallet);
+  const [hit, setHit] = useState<ScanHit | null>(null);
+  const [amount, setAmount] = useState("12");
+  const address = wallet.connected ? wallet.address : undefined;
+
+  function keep(next: ScanHit) {
+    setHit(next);
+    const row = collectScan(next);
+    if (row) toast(`Logged · ${RAIL_LABEL[next.kind]}`);
+  }
+
+  const payHref =
+    hit?.kind === "cashapp" && hit.cashtag
+      ? cashPayUrl(hit.cashtag, Math.max(1, Number(amount) || 0))
+      : hit?.kind === "coinbase"
+        ? hit.url
+        : hit?.kind === "eth"
+          ? coinbaseSendUrl(hit.address)
+          : hit?.url;
+
+  return (
+    <div className={compact ? "flex flex-col gap-4" : "grid gap-6 lg:grid-cols-[1.2fr_18rem]"}>
+      <ScanBooth onHit={keep} />
+      <aside className="rounded-lg bg-obsidian p-4 foil-frame">
+        <p className="text-xs uppercase tracking-[0.18em] text-ash">Hit</p>
+        {hit ? (
+          <>
+            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-magenta">
+              {RAIL_LABEL[hit.kind]}
+            </p>
+            <h2 className="mt-1 font-display text-xl tracking-[0.12em] text-ivory uppercase">
+              {hit.title}
+            </h2>
+            <p className="mt-2 break-all font-mono text-xs text-ash">
+              {hit.display}
+            </p>
+            {hit.kind === "cashapp" ? (
+              <div className="mt-4">
+                <Label htmlFor="dock-amt">Amount (USD)</Label>
+                <Input
+                  id="dock-amt"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+            ) : null}
+            {payHref ? (
+              <Button asChild className="mt-4 w-full">
+                <a href={payHref} target="_blank" rel="noreferrer">
+                  {hitAction(hit)}
+                  <ExternalLink className="size-3.5" />
+                </a>
+              </Button>
+            ) : null}
+            {hit.kind === "opensea" ? (
+              <Button asChild variant="outline" className="mt-2 w-full">
+                <a href={openSeaCreate()} target="_blank" rel="noreferrer">
+                  Mint on OpenSea
+                  <ExternalLink className="size-3.5" />
+                </a>
+              </Button>
+            ) : null}
+            {hit.kind === "eth" || hit.kind === "coinbase" ? (
+              <>
+                <Button asChild variant="outline" className="mt-2 w-full">
+                  <a
+                    href={coinbaseOnramp({
+                      asset: "ETH",
+                      address: hit.address || address,
+                    })}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Fund on Coinbase
+                    <ExternalLink className="size-3.5" />
+                  </a>
+                </Button>
+                {hit.address ? (
+                  <Button asChild variant="outline" className="mt-2 w-full">
+                    <a
+                      href={`https://etherscan.io/address/${hit.address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View on Etherscan
+                    </a>
+                  </Button>
+                ) : null}
+              </>
+            ) : null}
+          </>
+        ) : (
+          <p className="mt-3 text-sm text-ash">
+            Camera, paste, or still. Cash App, Coinbase, OpenSea, ETH. Then
+            pay, trade, or mint on-chain.
+          </p>
+        )}
+      </aside>
+    </div>
+  );
+}

@@ -21,6 +21,7 @@ import { Oracle } from "@/components/oracle";
 import { WalletButton } from "@/components/wallet-button";
 import { usePlayer } from "@/lib/player";
 import { hydrateIam } from "@/lib/store";
+import { hydrateOnchain } from "@/lib/onchain";
 import { cn } from "@/lib/utils";
 
 const PRIMARY = [
@@ -33,7 +34,7 @@ const PRIMARY = [
 
 const DESKTOP = [
   ...PRIMARY,
-  { to: "/altar", label: "Altar", icon: Flame },
+  { to: "/altar", label: "Onchain", icon: Flame },
   { to: "/grimoire", label: "Grimoire", icon: BookOpen },
   { to: "/vault", label: "Vault", icon: Library },
 ] as const;
@@ -44,6 +45,7 @@ export function AppShell() {
 
   useEffect(() => {
     hydrateIam();
+    hydrateOnchain();
   }, []);
 
   useEffect(() => {
@@ -96,6 +98,16 @@ export function AppShell() {
               <span className="hidden sm:inline">Get app</span>
             </Link>
             <Link
+              to="/altar"
+              className={cn(
+                "inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)] transition-colors duration-(--motion-quick) hover:bg-gold/10 lg:hidden",
+                pathname.startsWith("/altar") && "bg-gold/10",
+              )}
+            >
+              <Flame className="size-3.5" />
+              <span className="hidden sm:inline">Onchain</span>
+            </Link>
+            <Link
               to="/mint"
               className={cn(
                 "inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)] transition-colors duration-(--motion-quick) hover:bg-gold/10",
@@ -103,7 +115,7 @@ export function AppShell() {
               )}
             >
               <Stamp className="size-3.5" />
-              Studio
+              <span className="hidden sm:inline">Studio</span>
             </Link>
             <WalletButton />
           </div>

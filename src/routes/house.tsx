@@ -106,7 +106,7 @@ function House() {
             <Button asChild variant="outline">
               <Link to="/altar">
                 <Flame className="size-3.5" />
-                Altar
+                Onchain
               </Link>
             </Button>
             <Button asChild>

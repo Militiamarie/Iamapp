@@ -77,9 +77,9 @@ export function NowPlaying() {
               step={0.1}
               value={Math.min(t, duration || 0)}
               aria-label="Seek"
+              suppressHydrationWarning
               onChange={(e) => seek(Number(e.target.value))}
               className="h-1 w-full cursor-pointer appearance-none rounded-full bg-raised accent-gold"
-              suppressHydrationWarning
             />
             <span className="w-8 text-right font-mono text-[0.6rem] tabular-nums text-ash">
               {formatClock(duration)}

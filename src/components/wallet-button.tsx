@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { coinbaseDappUrl, type Eip1193 } from "@/lib/chain";
 import { formatEth, formatUsdc, shortAddr } from "@/lib/format";
 import {
   providerLabel,
@@ -18,17 +19,28 @@ import {
   type AnnouncedWallet,
   type WalletKind,
 } from "@/lib/injected-wallet";
-import { coinbaseBuyEth, coinbaseBuyUsdc, openSeaCreate } from "@/lib/onramp";
+import { useOnchain } from "@/lib/onchain";
+import { coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export function WalletButton() {
   const ready = useIam((s) => s.ready);
   const wallet = useIam((s) => s.wallet);
-  const disconnect = useIam((s) => s.disconnect);
+  const houseDisconnect = useIam((s) => s.disconnect);
+  const chainReady = useOnchain((s) => s.ready);
+  const address = useOnchain((s) => s.address);
+  const eth = useOnchain((s) => s.eth);
+  const usdc = useOnchain((s) => s.usdc);
+  const disconnectOnchain = useOnchain((s) => s.disconnect);
   const [open, setOpen] = useState(false);
   const [picker, setPicker] = useState(false);
+  const [dapp, setDapp] = useState("https://go.cb-w.com/dapp");
   const root = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setDapp(coinbaseDappUrl());
+  }, []);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -38,7 +50,7 @@ export function WalletButton() {
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
-  if (!ready) {
+  if (!ready || !chainReady) {
     return (
       <Button variant="outline" size="sm" disabled>
         <Wallet className="size-3.5" />
@@ -47,7 +59,13 @@ export function WalletButton() {
     );
   }
 
-  if (!wallet.connected) {
+  const connected = Boolean(address) || wallet.connected;
+  const shown = address || wallet.address;
+  const shownEth = address ? eth : wallet.eth;
+  const shownUsdc = address ? usdc : wallet.usdc;
+  const live = Boolean(address);
+
+  if (!connected) {
     return (
       <>
         <Button variant="outline" size="sm" onClick={() => setPicker(true)}>
@@ -69,16 +87,16 @@ export function WalletButton() {
       >
         <span className="size-1.5 rounded-full bg-gold" />
         <span className="font-mono text-[0.7rem] tracking-wide">
-          {shortAddr(wallet.address)}
+          {shortAddr(shown)}
         </span>
       </Button>
       {open ? (
         <div className="absolute top-[calc(100%+8px)] right-0 z-30 w-72 rounded-lg bg-surface p-3 shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_35%,transparent),0_18px_40px_-20px_rgb(0_0_0_/_0.8)]">
           <p className="text-[0.65rem] uppercase tracking-[0.16em] text-gold">
-            {providerLabel(wallet.provider)}
+            {live ? "Base" : providerLabel(wallet.provider)}
           </p>
           <p className="mt-1 font-mono text-[0.7rem] break-all text-ash">
-            {wallet.address}
+            {shown}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-sm bg-void px-2 py-2">
@@ -86,7 +104,7 @@ export function WalletButton() {
                 USDC
               </p>
               <p className="font-sans text-sm tabular-nums text-ivory">
-                {formatUsdc(wallet.usdc).replace(" USDC", "")}
+                {formatUsdc(shownUsdc).replace(" USDC", "")}
               </p>
             </div>
             <div className="rounded-sm bg-void px-2 py-2">
@@ -94,27 +112,33 @@ export function WalletButton() {
                 ETH
               </p>
               <p className="font-sans text-sm tabular-nums text-ivory">
-                {formatEth(wallet.eth)}
+                {formatEth(shownEth)}
               </p>
             </div>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <a
-              href={coinbaseBuyUsdc()}
+              href={coinbaseOnramp({
+                asset: "USDC",
+                address: live ? shown : undefined,
+              })}
               target="_blank"
               rel="noreferrer"
               className="inline-flex min-h-10 items-center justify-center gap-1 rounded-sm px-2 text-[0.65rem] uppercase tracking-[0.12em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
             >
-              Buy USDC
+              Onramp USDC
               <ExternalLink className="size-3" />
             </a>
             <a
-              href={coinbaseBuyEth()}
+              href={coinbaseOnramp({
+                asset: "ETH",
+                address: live ? shown : undefined,
+              })}
               target="_blank"
               rel="noreferrer"
               className="inline-flex min-h-10 items-center justify-center gap-1 rounded-sm px-2 text-[0.65rem] uppercase tracking-[0.12em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
             >
-              Buy ETH
+              Onramp ETH
               <ExternalLink className="size-3" />
             </a>
           </div>
@@ -126,17 +150,23 @@ export function WalletButton() {
             </Button>
             <Button asChild variant="outline" size="sm" className="flex-1">
               <Link to="/altar" onClick={() => setOpen(false)}>
-                Altar
+                Onchain
               </Link>
             </Button>
           </div>
+          <Button asChild variant="outline" size="sm" className="mt-2 w-full">
+            <a href={dapp} target="_blank" rel="noreferrer">
+              Coinbase Wallet
+              <ExternalLink className="size-3" />
+            </a>
+          </Button>
           <div className="mt-2 flex gap-2">
             <Button
               variant="outline"
               size="sm"
               className="flex-1"
               onClick={async () => {
-                await navigator.clipboard.writeText(wallet.address);
+                await navigator.clipboard.writeText(shown);
                 toast("Address copied");
                 setOpen(false);
               }}
@@ -149,9 +179,10 @@ export function WalletButton() {
               size="sm"
               className="flex-1"
               onClick={() => {
-                disconnect();
+                disconnectOnchain();
+                houseDisconnect();
                 setOpen(false);
-                toast("Vault closed");
+                toast(live ? "Onchain closed" : "Vault closed");
               }}
             >
               <Unplug className="size-3.5" />
@@ -201,12 +232,25 @@ export function WalletChoices({ onConnected }: { onConnected?: () => void }) {
     setBusy(wallet.rdns);
     setError(null);
     try {
+      const ok = await useOnchain.getState().connect({
+        provider: wallet.provider as Eip1193,
+        name: wallet.name,
+      });
+      const addr = useOnchain.getState().address;
+      if (ok && addr) {
+        connectChain(addr, wallet.kind);
+        toast(`Onchain · ${wallet.name}`);
+        onConnected?.();
+        return;
+      }
       const address = await requestAccount(wallet.provider);
       connectChain(address, wallet.kind);
       toast(`Connected · ${wallet.name}`);
       onConnected?.();
     } catch {
-      setError("Wallet refused the request.");
+      setError(
+        useOnchain.getState().error || "Wallet refused the request.",
+      );
     } finally {
       setBusy(null);
     }

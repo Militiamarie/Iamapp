@@ -29,6 +29,12 @@ export type CatalogItem = {
   soundcloudUrl?: string;
   tapeId?: string;
   audioName?: string;
+  onchain?: {
+    chain: "base";
+    contract: string;
+    tokenId: string;
+    tx: string;
+  };
 };
 
 export type Owned = {

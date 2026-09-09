@@ -73,6 +73,7 @@
     "tw-animate-css": "^1.3.4",
     "uqr": "^0.1.3",
     "vaul": "^1.1.2",
+    "viem": "^2.56.3",
     "zod": "^4.4.0",
     "zustand": "^5.0.0"
   },
@@ -93,6 +94,7 @@
     "nitro": "3.0.260610-beta",
     "playwright": "^1.62.0",
     "prettier": "^3.4.0",
+    "solc": "^0.8.36",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.2.0"

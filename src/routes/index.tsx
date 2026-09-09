@@ -36,7 +36,7 @@ function Temple() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild>
-              <Link to="/market">Play the catalog</Link>
+              <Link to="/altar">Open onchain</Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/mint">Mint yours</Link>
@@ -80,15 +80,15 @@ function Temple() {
       <section className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <HouseNote
           to="/altar"
-          kicker="Altar"
-          title="Make money"
-          body="10% house royalty. List on OpenSea. Coinbase, Cash App, MetaMask."
+          kicker="Onchain"
+          title="Base"
+          body="Connect Coinbase Wallet. Onramp ETH. Stamp a 1/1 on Base. Trade it on OpenSea."
         />
         <HouseNote
-          to="/market"
-          kicker="Tapes"
-          title="Playable 1/1s"
-          body="Every plate plays. Collect it. Share the drop. Trade it live."
+          to="/scan"
+          kicker="Scan"
+          title="Door"
+          body="Camera on Cash App, Coinbase, OpenSea. Pay, trade, or mint on the live rail."
         />
         <HouseNote
           to="/mint"
