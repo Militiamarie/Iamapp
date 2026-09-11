@@ -6,6 +6,7 @@ export const HOUSE = {
   tagline: "Her house. Play the tape. Scan a rail. Collect the 1/1.",
   location: "Los Angeles · 818",
   github: "https://github.com/Militiamarie/Iamapp",
+  web: "https://melitiamarie.netlify.app",
   x: "https://x.com/melitiamarie",
   instagram: "https://instagram.com/militiamarie333",
   instagramAlt: "https://instagram.com/iammelitia_marie444",

@@ -6,7 +6,7 @@ Live source: [github.com/Militiamarie/Iamapp](https://github.com/Militiamarie/Ia
 
 ## On the web
 
-**Live temple:** [militiamarie.github.io](https://militiamarie.github.io)
+**Live temple:** [melitiamarie.netlify.app](https://melitiamarie.netlify.app) · [militiamarie.github.io](https://militiamarie.github.io)
 
 Anyone with the link can open the house in a browser, play the catalog, and install I AM on their phone.
 
