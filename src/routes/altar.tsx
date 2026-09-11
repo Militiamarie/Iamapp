@@ -24,13 +24,15 @@ function Altar() {
 
   return (
     <div className="pt-6 sm:pt-10">
-      <p className="text-xs uppercase tracking-[0.22em] text-magenta">Base</p>
+      <p className="text-xs uppercase tracking-[0.22em] text-magenta">
+        Melitia Marie Productions
+      </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">
         Onchain
       </h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Connect Coinbase Wallet or MetaMask. Onramp ETH. Stamp a 1/1 on Base.
-        Trade it on OpenSea. Scanner at the door.
+        Connect Coinbase Wallet under Melitia Marie Productions. Onramp ETH.
+        Stamp a 1/1 on Base. Trade it on OpenSea. Scanner at the door.
       </p>
 
       <div className="mt-8">

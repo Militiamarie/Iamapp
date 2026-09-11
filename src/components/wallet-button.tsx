@@ -20,7 +20,8 @@ import {
   type WalletKind,
 } from "@/lib/injected-wallet";
 import { useOnchain } from "@/lib/onchain";
-import { coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
+import { openSeaCreate } from "@/lib/onramp";
+import { OnrampLink } from "@/components/onramp-link";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -117,30 +118,22 @@ export function WalletButton() {
             </div>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <a
-              href={coinbaseOnramp({
-                asset: "USDC",
-                address: live ? shown : undefined,
-              })}
-              target="_blank"
-              rel="noreferrer"
+            <OnrampLink
+              asset="USDC"
+              address={live ? shown : undefined}
               className="inline-flex min-h-10 items-center justify-center gap-1 rounded-sm px-2 text-[0.65rem] uppercase tracking-[0.12em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
             >
               Onramp USDC
               <ExternalLink className="size-3" />
-            </a>
-            <a
-              href={coinbaseOnramp({
-                asset: "ETH",
-                address: live ? shown : undefined,
-              })}
-              target="_blank"
-              rel="noreferrer"
+            </OnrampLink>
+            <OnrampLink
+              asset="ETH"
+              address={live ? shown : undefined}
               className="inline-flex min-h-10 items-center justify-center gap-1 rounded-sm px-2 text-[0.65rem] uppercase tracking-[0.12em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
             >
               Onramp ETH
               <ExternalLink className="size-3" />
-            </a>
+            </OnrampLink>
           </div>
           <div className="mt-2 flex gap-2">
             <Button asChild variant="outline" size="sm" className="flex-1">

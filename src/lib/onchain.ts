@@ -11,6 +11,7 @@ import {
   type Eip1193,
 } from "./chain";
 import { IAM_TAPE_ABI, IAM_TAPE_BYTECODE } from "./iam-tape";
+import { HOUSE } from "./site";
 
 export type ChainMint = {
   tx: string;
@@ -111,6 +112,30 @@ async function ensureBase(eip: Eip1193) {
   }
 }
 
+async function coinbaseSdkWallet(): Promise<{
+  provider: Eip1193;
+  name: string;
+} | null> {
+  if (typeof window === "undefined") return null;
+  try {
+    const { createCoinbaseWalletSDK } = await import("@coinbase/wallet-sdk");
+    const sdk = createCoinbaseWalletSDK({
+      appName: HOUSE.productions,
+      appLogoUrl: `${window.location.origin}/art/emblem.jpg`,
+      appChainIds: [BASE_ID],
+      preference: {
+        options: "all",
+        ...(import.meta.env.DEV
+          ? { keysUrl: "https://keys-dev.coinbase.com/connect" }
+          : {}),
+      },
+    });
+    return { provider: sdk.getProvider() as Eip1193, name: "Coinbase Wallet" };
+  } catch {
+    return null;
+  }
+}
+
 async function loadViem() {
   return import("viem");
 }
@@ -140,7 +165,7 @@ export const useOnchain = create<OnchainState>()(
       mints: [],
       connect: async (given) => {
         set({ status: "connecting", error: undefined });
-        const found = given ?? discoverWallet();
+        const found = given ?? discoverWallet() ?? (await coinbaseSdkWallet());
         if (!found) {
           set({
             status: "error",

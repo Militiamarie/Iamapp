@@ -1,3 +1,5 @@
+import { HOUSE } from "./site";
+
 export type OnrampAsset = "USDC" | "ETH";
 
 export function coinbaseOnramp(opts?: {
@@ -8,6 +10,8 @@ export function coinbaseOnramp(opts?: {
   const params = new URLSearchParams();
   params.set("fiatCurrency", "USD");
   params.set("defaultAsset", opts?.asset === "ETH" ? "ETH" : "USDC");
+  params.set("defaultNetwork", "base");
+  params.set("partnerUserRef", HOUSE.partnerRef);
   if (opts?.amountUsd && opts.amountUsd > 0) {
     params.set("presetFiatAmount", String(Math.max(1, Math.round(opts.amountUsd))));
   }

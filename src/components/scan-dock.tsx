@@ -2,9 +2,10 @@ import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { ScanBooth } from "@/components/scan-booth";
+import { OnrampLink } from "@/components/onramp-link";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-import { coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
+import { openSeaCreate } from "@/lib/onramp";
 import {
   cashPayUrl,
   coinbaseSendUrl,
@@ -83,19 +84,14 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
             ) : null}
             {hit.kind === "eth" || hit.kind === "coinbase" ? (
               <>
-                <Button asChild variant="outline" className="mt-2 w-full">
-                  <a
-                    href={coinbaseOnramp({
-                      asset: "ETH",
-                      address: hit.address || address,
-                    })}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Fund on Coinbase
-                    <ExternalLink className="size-3.5" />
-                  </a>
-                </Button>
+                <OnrampLink
+                  asset="ETH"
+                  address={hit.address || address}
+                  className="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_40%,transparent)]"
+                >
+                  Fund on Coinbase
+                  <ExternalLink className="size-3.5" />
+                </OnrampLink>
                 {hit.address ? (
                   <Button asChild variant="outline" className="mt-2 w-full">
                     <a

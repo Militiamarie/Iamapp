@@ -8,8 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { WalletChoices } from "@/components/wallet-button";
+import { OnrampLink } from "@/components/onramp-link";
 import { formatEth, formatRail, formatUsdc, usdcToEth } from "@/lib/format";
-import { cashAppHome, coinbaseOnramp, openSeaCreate } from "@/lib/onramp";
+import { cashAppHome, openSeaCreate } from "@/lib/onramp";
 import { cashPayUrl } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 import type { Rail } from "@/lib/types";
@@ -134,19 +135,15 @@ export function CheckoutDialog({
               above. Live rails below.
             </p>
             <div className="flex flex-wrap gap-2">
-              <a
-                href={coinbaseOnramp({
-                  asset: rail,
-                  amountUsd: priceUsdc,
-                  address: wallet.connected ? wallet.address : undefined,
-                })}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
-              >
-                Buy {rail} on Coinbase
-                <ExternalLink className="size-3" />
-              </a>
+            <OnrampLink
+              asset={rail}
+              amountUsd={priceUsdc}
+              address={wallet.connected ? wallet.address : undefined}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)]"
+            >
+              Buy {rail} on Coinbase
+              <ExternalLink className="size-3" />
+            </OnrampLink>
               <a
                 href={openSeaCreate()}
                 target="_blank"

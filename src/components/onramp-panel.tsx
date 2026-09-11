@@ -1,13 +1,16 @@
+import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { OnrampLink } from "@/components/onramp-link";
 import { Button } from "@/components/ui/button";
+import { cdpStatus } from "@/lib/cdp-session";
 import {
-  coinbaseOnramp,
   coinbaseTrade,
   coinbaseWallet,
   openSeaCreate,
   openSeaStudio,
 } from "@/lib/onramp";
 import { cashPayUrl } from "@/lib/rails";
+import { HOUSE } from "@/lib/site";
 import { useOnchain } from "@/lib/onchain";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -22,24 +25,36 @@ export function OnrampPanel({
   const address = useOnchain((s) => s.address);
   const profile = useIam((s) => s.profile);
   const cash = profile.links.cashapp.trim();
+  const [cdpLive, setCdpLive] = useState(false);
+
+  useEffect(() => {
+    void cdpStatus()
+      .then((s) => {
+        if (s.ok) setCdpLive(true);
+      })
+      .catch(() => {
+        setCdpLive(false);
+      });
+  }, []);
 
   const cards: {
     kicker: string;
     title: string;
     body: string;
-    href: string;
+    href?: string;
+    asset?: "USDC" | "ETH";
   }[] = [
     {
-      kicker: "Coinbase",
+      kicker: HOUSE.productions,
       title: "Onramp USDC",
-      body: "Buy USDC on Base. The rail OpenSea and the house settle on.",
-      href: coinbaseOnramp({ asset: "USDC", amountUsd, address }),
+      body: "Buy USDC on Base. Signed session under Melitia Marie Productions.",
+      asset: "USDC",
     },
     {
-      kicker: "Coinbase",
+      kicker: HOUSE.productions,
       title: "Onramp ETH",
       body: "Buy ether on Base. Gas to stamp a 1/1 and trade it.",
-      href: coinbaseOnramp({ asset: "ETH", amountUsd, address }),
+      asset: "ETH",
     },
     {
       kicker: "Coinbase",
@@ -58,14 +73,17 @@ export function OnrampPanel({
   return (
     <section>
       <p className="text-xs uppercase tracking-[0.18em] text-gold">
-        Coinbase Onramp
+        {HOUSE.productions}
       </p>
       <h2 className="mt-1 text-lg text-ivory uppercase sm:text-xl">
-        Onramp
+        Coinbase Developer
       </h2>
       <p className="mt-1 max-w-xl text-sm text-ash">
-        Buy USDC or ETH on Coinbase, land it on Base, stamp on-chain, trade on
-        OpenSea. This house does not hold your keys.
+        Onramp under Melitia Marie Productions on Coinbase. USDC and ETH land
+        on Base. This house does not hold your keys.
+      </p>
+      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-magenta">
+        {cdpLive ? "CDP session live" : "Coinbase rail"}
       </p>
       <div
         className={cn(
@@ -73,26 +91,51 @@ export function OnrampPanel({
           compact ? "sm:grid-cols-2" : "sm:grid-cols-2",
         )}
       >
-        {cards.map((c) => (
-          <a
-            key={c.title}
-            href={c.href}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-lg bg-obsidian p-4 foil-frame"
-          >
-            <p className="text-xs uppercase tracking-[0.18em] text-magenta">
-              {c.kicker}
-            </p>
-            <h3 className="mt-1 flex items-center gap-2 font-display text-lg tracking-[0.12em] text-ivory uppercase">
-              {c.title}
-              <ExternalLink className="size-3.5 text-gold" />
-            </h3>
-            <p className="mt-2 text-sm text-ash">{c.body}</p>
-          </a>
-        ))}
+        {cards.map((c) =>
+          c.href ? (
+            <a
+              key={c.title}
+              href={c.href}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg bg-obsidian p-4 foil-frame"
+            >
+              <p className="text-xs uppercase tracking-[0.18em] text-magenta">
+                {c.kicker}
+              </p>
+              <h3 className="mt-1 flex items-center gap-2 font-display text-lg tracking-[0.12em] text-ivory uppercase">
+                {c.title}
+                <ExternalLink className="size-3.5 text-gold" />
+              </h3>
+              <p className="mt-2 text-sm text-ash">{c.body}</p>
+            </a>
+          ) : (
+            <OnrampLink
+              key={c.title}
+              asset={c.asset}
+              amountUsd={amountUsd}
+              address={address}
+              className="rounded-lg bg-obsidian p-4 foil-frame"
+            >
+              <p className="text-xs uppercase tracking-[0.18em] text-magenta">
+                {c.kicker}
+              </p>
+              <h3 className="mt-1 flex items-center gap-2 font-display text-lg tracking-[0.12em] text-ivory uppercase">
+                {c.title}
+                <ExternalLink className="size-3.5 text-gold" />
+              </h3>
+              <p className="mt-2 text-sm text-ash">{c.body}</p>
+            </OnrampLink>
+          ),
+        )}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
+        <Button asChild variant="outline" size="sm">
+          <a href={HOUSE.cdpPortal} target="_blank" rel="noreferrer">
+            CDP Portal
+            <ExternalLink className="size-3" />
+          </a>
+        </Button>
         <Button asChild variant="outline" size="sm">
           <a href={coinbaseWallet()} target="_blank" rel="noreferrer">
             Coinbase Wallet

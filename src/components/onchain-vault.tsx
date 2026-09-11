@@ -10,7 +10,9 @@ import {
   openSeaItem,
 } from "@/lib/chain";
 import { formatEth, formatUsdc, shortAddr } from "@/lib/format";
-import { coinbaseOnramp, coinbaseWallet } from "@/lib/onramp";
+import { coinbaseWallet } from "@/lib/onramp";
+import { openHouseOnramp } from "@/lib/cdp-session";
+import { HOUSE } from "@/lib/site";
 import { seaUrl, useOnchain } from "@/lib/onchain";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -84,7 +86,9 @@ export function OnchainVault() {
     <section className="rounded-lg bg-obsidian p-4 foil-frame sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-gold">Base</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-gold">
+            {HOUSE.productions}
+          </p>
           <h2 className="mt-1 text-lg text-ivory uppercase">Onchain</h2>
         </div>
         {address ? (
@@ -98,8 +102,8 @@ export function OnchainVault() {
         )}
       </div>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Coinbase Wallet or MetaMask. Mint a 1/1 on Base. Trade it on OpenSea.
-        This house never holds your keys.
+        Coinbase Wallet under Melitia Marie Productions. Mint a 1/1 on Base.
+        Trade it on OpenSea. This house never holds your keys.
       </p>
 
       {address ? (
@@ -149,18 +153,19 @@ export function OnchainVault() {
             >
               Refresh
             </Button>
-            <Button asChild variant="outline" size="sm">
-              <a
-                href={coinbaseOnramp({
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                void openHouseOnramp({
                   asset: "ETH",
                   address,
-                })}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Onramp ETH
-                <ExternalLink className="size-3" />
-              </a>
+                })
+              }
+            >
+              Onramp ETH
+              <ExternalLink className="size-3" />
             </Button>
             <Button
               type="button"
