@@ -10,7 +10,7 @@ Live source: [github.com/Militiamarie/Iamapp](https://github.com/Militiamarie/Ia
 
 Anyone with the link can open the house in a browser, play the catalog, and install I AM on their phone.
 
-**Productions** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, send ETH / USDC, Vibenet test pool, on-ramp, stamp a 1/1, trade on OpenSea, scan Cash App / Coinbase / OpenSea at the door.
+**Productions** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, send ETH / USDC, Vibenet test pool, on-ramp, stamp a 1/1, live OpenSea (`opensea.io/melitiamarie`), scan Cash App / Coinbase / OpenSea at the door.
 
 This house never holds keys. Demo vault is for the temple. Live rails are Coinbase, Cash App, OpenSea, and Base.
 

@@ -14,7 +14,7 @@ import {
   openSeaItem,
 } from "@/lib/chain";
 import { formatEth, formatUsdc, shortAddr } from "@/lib/format";
-import { coinbaseWallet } from "@/lib/onramp";
+import { coinbaseWallet, openSeaWallet } from "@/lib/onramp";
 import { openHouseOnramp } from "@/lib/cdp-session";
 import { HOUSE } from "@/lib/site";
 import { seaUrl, useOnchain } from "@/lib/onchain";
@@ -177,6 +177,12 @@ export function OnchainVault() {
             >
               Onramp ETH
               <ExternalLink className="size-3" />
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <a href={openSeaWallet(address)} target="_blank" rel="noreferrer">
+                OpenSea
+                <ExternalLink className="size-3" />
+              </a>
             </Button>
             {onVibenet ? (
               <Button

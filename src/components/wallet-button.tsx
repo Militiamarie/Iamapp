@@ -20,7 +20,7 @@ import {
   type WalletKind,
 } from "@/lib/injected-wallet";
 import { useOnchain } from "@/lib/onchain";
-import { openSeaCreate } from "@/lib/onramp";
+import { openSeaProfile, openSeaWallet } from "@/lib/onramp";
 import { OnrampLink } from "@/components/onramp-link";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -137,7 +137,15 @@ export function WalletButton() {
           </div>
           <div className="mt-2 flex gap-2">
             <Button asChild variant="outline" size="sm" className="flex-1">
-              <a href={openSeaCreate()} target="_blank" rel="noreferrer">
+              <a
+                href={
+                  live && shown
+                    ? openSeaWallet(shown)
+                    : openSeaProfile()
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
                 OpenSea
               </a>
             </Button>

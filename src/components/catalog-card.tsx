@@ -10,9 +10,8 @@ import { isPlayable, mergeCatalog } from "@/lib/catalog";
 import { formatUsdc, kindLabel } from "@/lib/format";
 import {
   nftMeta,
-  openSeaFindUrl,
-  openSeaListUrl,
   shareDrop,
+  tradeUrl,
 } from "@/lib/nft";
 import { asPlaySource, usePlayer } from "@/lib/player";
 import { useIam } from "@/lib/store";
@@ -134,7 +133,7 @@ export function CatalogCard({
             </Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
-            <a href={openSeaFindUrl(item.title, item.creator)} target="_blank" rel="noreferrer">
+            <a href={tradeUrl(item)} target="_blank" rel="noreferrer">
               Trade
             </a>
           </Button>
@@ -165,7 +164,7 @@ export function CatalogCard({
               action: {
                 label: "OpenSea",
                 onClick: () => {
-                  window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+                  window.open(tradeUrl(item), "_blank", "noopener,noreferrer");
                 },
               },
             });

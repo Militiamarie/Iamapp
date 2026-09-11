@@ -23,6 +23,14 @@ export function HouseLinks({ className }: { className?: string }) {
     links.rapfame ? { label: "Rap Fame", href: links.rapfame } : STATIC[5],
     links.soundcloud ? { label: "SoundCloud", href: links.soundcloud } : STATIC[6],
     links.x ? { label: "X", href: links.x } : STATIC[7],
+    {
+      label: "OpenSea",
+      href: links.opensea || HOUSE.opensea,
+    },
+    {
+      label: "Coinbase",
+      href: links.coinbase || HOUSE.coinbase,
+    },
   ];
 
   return (

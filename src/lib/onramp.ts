@@ -64,3 +64,19 @@ export function openSeaStudio() {
 export function openSeaSearch(q: string) {
   return `https://opensea.io/explore?search=${encodeURIComponent(q)}`;
 }
+
+export function openSeaAccount() {
+  return "https://opensea.io/account";
+}
+
+export function openSeaLogin() {
+  return "https://opensea.io/login";
+}
+
+export function openSeaWallet(address: string) {
+  return `https://opensea.io/${address}`;
+}
+
+export function openSeaProfile(handle = HOUSE.handle) {
+  return `https://opensea.io/${handle.replace(/^@/, "")}`;
+}

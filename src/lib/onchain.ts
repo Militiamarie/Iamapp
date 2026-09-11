@@ -60,6 +60,7 @@ type OnchainState = {
   sends: ChainSend[];
   error?: string;
   connect: (given?: { provider: Eip1193; name: string }) => Promise<boolean>;
+  connectCoinbase: () => Promise<boolean>;
   disconnect: () => void;
   refresh: () => Promise<void>;
   refreshVibenet: () => Promise<void>;
@@ -280,6 +281,10 @@ export const useOnchain = create<OnchainState>()(
           set({ status: "error", error: errMsg(err) });
           return false;
         }
+      },
+      connectCoinbase: async () => {
+        const sdk = await coinbaseSdkWallet();
+        return get().connect(sdk ?? undefined);
       },
       disconnect: () => {
         provider = null;

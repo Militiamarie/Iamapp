@@ -16,6 +16,8 @@ export const HOUSE = {
   rapfame: "https://rapfame.app/user/melitiamarie333",
   cdpPortal: "https://portal.cdp.coinbase.com/",
   partnerRef: "iam-mmp",
+  coinbase: "https://www.coinbase.com/",
+  opensea: "https://opensea.io/melitiamarie",
 } as const;
 
 export function liveOrigin() {

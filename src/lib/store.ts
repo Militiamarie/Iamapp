@@ -96,8 +96,8 @@ export const DEFAULT_PROFILE: HouseProfile = {
   cover: "/art/hero.jpg",
   links: {
     cashapp: "",
-    coinbase: "",
-    opensea: "",
+    coinbase: HOUSE.coinbase,
+    opensea: HOUSE.opensea,
     instagram: HOUSE.instagram,
     youtube: HOUSE.youtube,
     soundcloud: HOUSE.soundcloud,
@@ -107,6 +107,14 @@ export const DEFAULT_PROFILE: HouseProfile = {
     rapfame: HOUSE.rapfame,
   },
 };
+
+function liveLinks(links: HouseProfile["links"]): HouseProfile["links"] {
+  return {
+    ...links,
+    coinbase: links.coinbase.trim() || HOUSE.coinbase,
+    opensea: links.opensea.trim() || HOUSE.opensea,
+  };
+}
 
 const SEED_POSTS: HousePost[] = [
   {
@@ -336,7 +344,7 @@ export const useIam = create<IamState>()(
             handle: next.handle.replace(/^@/, "").trim() || "melitiamarie",
             bio: next.bio.trim(),
             location: next.location.trim(),
-            links: { ...DEFAULT_PROFILE.links, ...next.links },
+            links: liveLinks({ ...DEFAULT_PROFILE.links, ...next.links }),
           },
         });
       },
@@ -466,7 +474,10 @@ export function hydrateIam() {
       profile: {
         ...DEFAULT_PROFILE,
         ...(s.profile ?? {}),
-        links: { ...DEFAULT_PROFILE.links, ...(s.profile?.links ?? {}) },
+        links: liveLinks({
+          ...DEFAULT_PROFILE.links,
+          ...(s.profile?.links ?? {}),
+        }),
       },
       wallet: {
         ...emptyWallet,

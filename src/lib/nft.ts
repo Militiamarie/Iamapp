@@ -1,3 +1,4 @@
+import { openSeaItem } from "./chain";
 import { openSeaCreate, openSeaSearch } from "./onramp";
 import { liveOrigin } from "./site";
 import type { CatalogItem } from "./types";
@@ -30,6 +31,15 @@ export function openSeaListUrl() {
 
 export function openSeaFindUrl(title: string, creator?: string) {
   return openSeaSearch([creator, title].filter(Boolean).join(" "));
+}
+
+export function tradeUrl(
+  item: Pick<CatalogItem, "title" | "creator" | "onchain">,
+) {
+  if (item.onchain) {
+    return openSeaItem(item.onchain.contract, item.onchain.tokenId);
+  }
+  return openSeaFindUrl(item.title, item.creator);
 }
 
 export function nftMeta(item: Pick<CatalogItem, "id" | "title" | "creator" | "edition">) {

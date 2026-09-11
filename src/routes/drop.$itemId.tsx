@@ -9,9 +9,9 @@ import { isPlayable, mergeCatalog } from "@/lib/catalog";
 import { formatUsdc } from "@/lib/format";
 import {
   nftMeta,
-  openSeaFindUrl,
   openSeaListUrl,
   shareDrop,
+  tradeUrl,
 } from "@/lib/nft";
 import { asPlaySource, usePlayer } from "@/lib/player";
 import { useIam } from "@/lib/store";
@@ -112,12 +112,8 @@ function Drop() {
               </a>
             </Button>
             <Button asChild variant="outline">
-              <a
-                href={openSeaFindUrl(item.title, item.creator)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Find on OpenSea
+              <a href={tradeUrl(item)} target="_blank" rel="noreferrer">
+                Trade on OpenSea
               </a>
             </Button>
             <Button
@@ -157,7 +153,7 @@ function Drop() {
               action: {
                 label: "OpenSea",
                 onClick: () => {
-                  window.open(openSeaListUrl(), "_blank", "noopener,noreferrer");
+                  window.open(tradeUrl(item), "_blank", "noopener,noreferrer");
                 },
               },
             });

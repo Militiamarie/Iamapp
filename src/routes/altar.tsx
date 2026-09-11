@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Stamp } from "lucide-react";
 import { CollectCard } from "@/components/collect-card";
 import { HouseLinks } from "@/components/house-links";
+import { LiveRails } from "@/components/live-rails";
 import { OnchainVault } from "@/components/onchain-vault";
 import { OnrampPanel } from "@/components/onramp-panel";
 import { RailQr } from "@/components/rail-qr";
@@ -37,6 +38,10 @@ export function Altar() {
       </p>
 
       <div className="mt-8">
+        <LiveRails />
+      </div>
+
+      <div className="mt-8">
         <OnchainVault />
       </div>
 
@@ -57,11 +62,18 @@ export function Altar() {
       </div>
 
       <section className="mt-10">
-        <h2 className="text-lg text-ivory uppercase">OpenSea</h2>
-        <p className="mt-1 max-w-xl text-sm text-ash">
-          Trade a Base 1/1, or mint through OpenSea Studio. House presses wait
-          in the vault to stamp on-chain.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="text-lg text-ivory uppercase">OpenSea</h2>
+            <p className="mt-1 max-w-xl text-sm text-ash">
+              House profile is live. Trade a Base 1/1, or mint through OpenSea
+              Studio.
+            </p>
+          </div>
+          <span className="rounded-full bg-gold/15 px-2 py-1 text-xs uppercase tracking-[0.14em] text-gold">
+            Live
+          </span>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild>
             <a href={openSeaCreate()} target="_blank" rel="noreferrer">
@@ -111,15 +123,7 @@ export function Altar() {
             ))}
           </div>
         </section>
-      ) : (
-        <p className="mt-8 text-sm text-ash">
-          Add Cash App, Coinbase, and OpenSea in{" "}
-          <Link to="/house" className="text-gold">
-            the house
-          </Link>{" "}
-          so collectors can pay you on the live rails.
-        </p>
-      )}
+      ) : null}
 
       {collects.length > 0 ? (
         <section className="mt-10">

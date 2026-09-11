@@ -65,7 +65,7 @@ export function OnrampPanel({
     {
       kicker: "OpenSea",
       title: "Mint on-chain",
-      body: "Press a 1/1 on Ethereum or Base. List it from Studio.",
+      body: "Live OpenSea · press a 1/1 on Base. List it from Studio.",
       href: openSeaCreate(),
     },
   ];
@@ -79,12 +79,12 @@ export function OnrampPanel({
         Coinbase Developer
       </h2>
       <p className="mt-1 max-w-xl text-sm text-ash">
-        Live Coinbase on the web. Buy USDC or ETH, land it on Base, stamp
-        on-chain. Melitia Marie Productions. This house does not hold your
-        keys.
+        Live Coinbase and OpenSea on the web. Buy USDC or ETH, land it on
+        Base, stamp on-chain, trade the 1/1. Melitia Marie Productions. This
+        house does not hold your keys.
       </p>
       <p className="mt-2 text-xs uppercase tracking-[0.14em] text-gold">
-        {cdpLive ? "CDP session live" : "Live on Coinbase"}
+        {cdpLive ? "CDP session live · OpenSea live" : "Live on Coinbase · OpenSea"}
       </p>
       <div
         className={cn(
