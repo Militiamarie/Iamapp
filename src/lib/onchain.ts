@@ -6,7 +6,14 @@ import {
   BASE_ID,
   BASE_RPC,
   BASE_USDC,
+  VIBENET_ADD_CHAIN,
+  VIBENET_FAUCET_DRIP,
+  VIBENET_HEX,
+  VIBENET_ID,
+  VIBENET_RPC,
+  VIBENET_USDV,
   discoverWallet,
+  isEthAddress,
   openSeaItem,
   type Eip1193,
 } from "./chain";
@@ -22,6 +29,20 @@ export type ChainMint = {
   at: number;
 };
 
+export type ChainSend = {
+  tx: string;
+  to: string;
+  amount: string;
+  asset: "ETH" | "USDC";
+  at: number;
+};
+
+export type SendDraft = {
+  to: string;
+  amount: string;
+  asset: "ETH" | "USDC";
+};
+
 type OnchainState = {
   ready: boolean;
   status: "idle" | "connecting" | "ready" | "error";
@@ -30,13 +51,22 @@ type OnchainState = {
   walletName?: string;
   eth: number;
   usdc: number;
+  vibenetEth: number;
+  vibenetUsdv: number;
+  vibenetDrip?: string;
   collection?: string;
   collections: Record<string, string>;
   mints: ChainMint[];
+  sends: ChainSend[];
   error?: string;
   connect: (given?: { provider: Eip1193; name: string }) => Promise<boolean>;
   disconnect: () => void;
   refresh: () => Promise<void>;
+  refreshVibenet: () => Promise<void>;
+  switchBase: () => Promise<boolean>;
+  connectVibenet: () => Promise<boolean>;
+  dripVibenet: () => Promise<string | null>;
+  sendOnchain: (draft: SendDraft) => Promise<ChainSend | null>;
   mintTape: (draft: TapeMeta) => Promise<ChainMint | null>;
 };
 
@@ -50,13 +80,23 @@ export type TapeMeta = {
   itemId?: string;
 };
 
-const USDC_ABI = [
+const ERC20_ABI = [
   {
     type: "function",
     name: "balanceOf",
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
     outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "transfer",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ type: "bool" }],
   },
 ] as const;
 
@@ -91,25 +131,47 @@ function metadataUri(draft: TapeMeta) {
   return `data:application/json;base64,${btoa(raw)}`;
 }
 
-async function ensureBase(eip: Eip1193) {
+function unknownChain(err: unknown) {
+  const e = err as { code?: number | string; message?: string };
+  const code = Number(e.code);
+  return (
+    code === 4902 ||
+    /unrecognized chain|chain.*not (added|found)|added to wallet/i.test(
+      e.message || "",
+    )
+  );
+}
+
+async function ensureChain(
+  eip: Eip1193,
+  hex: string,
+  add: typeof BASE_ADD_CHAIN,
+) {
   const id = await eip.request({ method: "eth_chainId" });
-  if (String(id).toLowerCase() === BASE_HEX) return;
+  if (String(id).toLowerCase() === hex.toLowerCase()) return;
   try {
     await eip.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: BASE_HEX }],
+      params: [{ chainId: hex }],
     });
   } catch (err) {
-    const code = (err as { code?: number }).code;
-    if (code === 4902) {
+    if (unknownChain(err)) {
       await eip.request({
         method: "wallet_addEthereumChain",
-        params: [BASE_ADD_CHAIN],
+        params: [add],
       });
       return;
     }
     throw err;
   }
+}
+
+async function ensureBase(eip: Eip1193) {
+  await ensureChain(eip, BASE_HEX, BASE_ADD_CHAIN);
+}
+
+async function ensureVibenet(eip: Eip1193) {
+  await ensureChain(eip, VIBENET_HEX, VIBENET_ADD_CHAIN);
 }
 
 async function coinbaseSdkWallet(): Promise<{
@@ -122,7 +184,7 @@ async function coinbaseSdkWallet(): Promise<{
     const sdk = createCoinbaseWalletSDK({
       appName: HOUSE.productions,
       appLogoUrl: `${window.location.origin}/art/emblem.jpg`,
-      appChainIds: [BASE_ID],
+      appChainIds: [BASE_ID, VIBENET_ID],
       preference: {
         options: "eoaOnly",
         attribution: { auto: true },
@@ -147,9 +209,27 @@ const baseChain = {
   },
 } as const;
 
+const vibenetChain = {
+  id: VIBENET_ID,
+  name: "Base Vibenet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: [VIBENET_RPC] },
+  },
+} as const;
+
 function errMsg(err: unknown) {
   const e = err as { shortMessage?: string; message?: string };
   return e.shortMessage || e.message || "Wallet rejected";
+}
+
+async function readChainId(eip: Eip1193 | null) {
+  if (!eip) return undefined;
+  try {
+    return Number(await eip.request({ method: "eth_chainId" }));
+  } catch {
+    return undefined;
+  }
 }
 
 export const useOnchain = create<OnchainState>()(
@@ -159,8 +239,11 @@ export const useOnchain = create<OnchainState>()(
       status: "idle",
       eth: 0,
       usdc: 0,
+      vibenetEth: 0,
+      vibenetUsdv: 0,
       collections: {},
       mints: [],
+      sends: [],
       connect: async (given) => {
         set({ status: "connecting", error: undefined });
         const found = given ?? discoverWallet() ?? (await coinbaseSdkWallet());
@@ -207,6 +290,9 @@ export const useOnchain = create<OnchainState>()(
           walletName: undefined,
           eth: 0,
           usdc: 0,
+          vibenetEth: 0,
+          vibenetUsdv: 0,
+          vibenetDrip: undefined,
           error: undefined,
         });
       },
@@ -220,22 +306,187 @@ export const useOnchain = create<OnchainState>()(
             chain: baseChain,
             transport: http(BASE_RPC),
           });
-          const [wei, rawUsdc] = await Promise.all([
+          const [wei, rawUsdc, chainId] = await Promise.all([
             publicClient.getBalance({ address: address as `0x${string}` }),
             publicClient.readContract({
               address: BASE_USDC,
-              abi: USDC_ABI,
+              abi: ERC20_ABI,
               functionName: "balanceOf",
               args: [address as `0x${string}`],
             }),
+            readChainId(provider),
           ]);
           set({
             eth: Number(formatEther(wei)),
             usdc: Number(formatUnits(rawUsdc, 6)),
-            chainId: BASE_ID,
+            chainId: chainId ?? get().chainId,
           });
         } catch {
           /* public rpc blip — keep last */
+        }
+      },
+      refreshVibenet: async () => {
+        const { address } = get();
+        if (!address) return;
+        try {
+          const { createPublicClient, http, formatEther, formatUnits } =
+            await loadViem();
+          const publicClient = createPublicClient({
+            chain: vibenetChain,
+            transport: http(VIBENET_RPC),
+          });
+          const [wei, rawUsdv, chainId] = await Promise.all([
+            publicClient.getBalance({ address: address as `0x${string}` }),
+            publicClient
+              .readContract({
+                address: VIBENET_USDV,
+                abi: ERC20_ABI,
+                functionName: "balanceOf",
+                args: [address as `0x${string}`],
+              })
+              .catch(() => 0n),
+            readChainId(provider),
+          ]);
+          set({
+            vibenetEth: Number(formatEther(wei)),
+            vibenetUsdv: Number(formatUnits(rawUsdv as bigint, 6)),
+            chainId: chainId ?? get().chainId,
+          });
+        } catch {
+          /* pool rpc blip */
+        }
+      },
+      switchBase: async () => {
+        if (!provider) {
+          return get().connect();
+        }
+        try {
+          await ensureBase(provider);
+          const chainId = await readChainId(provider);
+          set({ chainId, error: undefined });
+          await get().refresh();
+          return true;
+        } catch (err) {
+          set({ error: errMsg(err) });
+          return false;
+        }
+      },
+      connectVibenet: async () => {
+        if (!provider || !get().address) {
+          const ok = await get().connect();
+          if (!ok) return false;
+        }
+        if (!provider) return false;
+        try {
+          await ensureVibenet(provider);
+          const chainId = await readChainId(provider);
+          set({ chainId, error: undefined });
+          await get().refreshVibenet();
+          return true;
+        } catch (err) {
+          set({ error: errMsg(err) });
+          return false;
+        }
+      },
+      dripVibenet: async () => {
+        let { address } = get();
+        if (!address) {
+          const ok = await get().connect();
+          if (!ok) return null;
+          address = get().address;
+        }
+        if (!address) return null;
+        try {
+          const res = await fetch(VIBENET_FAUCET_DRIP, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ address }),
+          });
+          const json = (await res.json()) as {
+            tx_hash?: string;
+            error?: string;
+          };
+          if (!res.ok || json.error || !json.tx_hash) {
+            throw new Error(json.error || "Faucet refused");
+          }
+          set({ vibenetDrip: json.tx_hash, error: undefined });
+          await get().refreshVibenet();
+          return json.tx_hash;
+        } catch (err) {
+          set({ error: errMsg(err) });
+          return null;
+        }
+      },
+      sendOnchain: async (draft) => {
+        const { address } = get();
+        if (!address || !provider) {
+          set({ error: "Connect a wallet first." });
+          return null;
+        }
+        const to = draft.to.trim();
+        if (!isEthAddress(to)) {
+          set({ error: "Need a live 0x address." });
+          return null;
+        }
+        const amount = draft.amount.trim();
+        const n = Number(amount);
+        if (!Number.isFinite(n) || n <= 0) {
+          set({ error: "Need an amount." });
+          return null;
+        }
+        try {
+          await ensureBase(provider);
+          const {
+            createPublicClient,
+            createWalletClient,
+            custom,
+            http,
+            parseEther,
+            parseUnits,
+          } = await loadViem();
+          const publicClient = createPublicClient({
+            chain: baseChain,
+            transport: http(BASE_RPC),
+          });
+          const wallet = createWalletClient({
+            account: address as `0x${string}`,
+            chain: baseChain,
+            transport: custom(provider),
+          });
+          const hash =
+            draft.asset === "USDC"
+              ? await wallet.writeContract({
+                  address: BASE_USDC,
+                  abi: ERC20_ABI,
+                  functionName: "transfer",
+                  args: [to as `0x${string}`, parseUnits(amount, 6)],
+                  account: address as `0x${string}`,
+                  chain: baseChain,
+                })
+              : await wallet.sendTransaction({
+                  to: to as `0x${string}`,
+                  value: parseEther(amount),
+                  account: address as `0x${string}`,
+                  chain: baseChain,
+                });
+          await publicClient.waitForTransactionReceipt({ hash });
+          const row: ChainSend = {
+            tx: hash,
+            to: asAddr(to),
+            amount,
+            asset: draft.asset,
+            at: Date.now(),
+          };
+          set({
+            sends: [row, ...get().sends].slice(0, 24),
+            chainId: BASE_ID,
+            error: undefined,
+          });
+          await get().refresh();
+          return row;
+        } catch (err) {
+          set({ error: errMsg(err) });
+          return null;
         }
       },
       mintTape: async (draft) => {
@@ -314,7 +565,7 @@ export const useOnchain = create<OnchainState>()(
             itemId: draft.itemId,
             at: Date.now(),
           };
-          set({ mints: [row, ...get().mints] });
+          set({ mints: [row, ...get().mints], chainId: BASE_ID });
           await get().refresh();
           return row;
         } catch (err) {
@@ -330,6 +581,7 @@ export const useOnchain = create<OnchainState>()(
         collections: s.collections,
         collection: s.collection,
         mints: s.mints,
+        sends: s.sends,
       }),
     },
   ),

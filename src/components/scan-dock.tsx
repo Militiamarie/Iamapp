@@ -3,8 +3,10 @@ import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { ScanBooth } from "@/components/scan-booth";
 import { OnrampLink } from "@/components/onramp-link";
+import { SendRail } from "@/components/send-rail";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { basescanAddress } from "@/lib/chain";
 import { openSeaCreate } from "@/lib/onramp";
 import {
   cashPayUrl,
@@ -21,6 +23,7 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
   const [hit, setHit] = useState<ScanHit | null>(null);
   const [amount, setAmount] = useState("12");
   const address = wallet.connected ? wallet.address : undefined;
+  const payTo = hit?.address;
 
   function keep(next: ScanHit) {
     setHit(next);
@@ -84,6 +87,7 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
             ) : null}
             {hit.kind === "eth" || hit.kind === "coinbase" ? (
               <>
+                {payTo ? <SendRail key={payTo} to={payTo} compact /> : null}
                 <OnrampLink
                   asset="ETH"
                   address={hit.address || address}
@@ -95,11 +99,11 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
                 {hit.address ? (
                   <Button asChild variant="outline" className="mt-2 w-full">
                     <a
-                      href={`https://etherscan.io/address/${hit.address}`}
+                      href={basescanAddress(hit.address)}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      View on Etherscan
+                      View on Basescan
                     </a>
                   </Button>
                 ) : null}
@@ -109,7 +113,7 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
         ) : (
           <p className="mt-3 text-sm text-ash">
             Camera, paste, or still. Cash App, Coinbase, OpenSea, ETH. Then
-            pay, trade, or mint on-chain.
+            pay, send on Base, or mint.
           </p>
         )}
       </aside>

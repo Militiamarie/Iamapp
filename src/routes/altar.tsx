@@ -32,7 +32,8 @@ export function Altar() {
       </h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
         Coinbase is live on the web under Melitia Marie Productions. Connect
-        Wallet. Onramp ETH. Stamp a 1/1 on Base. Scanner at the door.
+        Wallet. Send ETH or USDC. Hit the Vibenet pool. Stamp a 1/1 on Base.
+        Scanner at the door.
       </p>
 
       <div className="mt-8">
@@ -44,7 +45,7 @@ export function Altar() {
         <h2 className="mt-1 text-lg text-ivory uppercase sm:text-xl">Scanner</h2>
         <p className="mt-1 max-w-xl text-sm text-ash">
           Camera on a Cash App cashtag, Coinbase wallet, OpenSea listing, or
-          ETH address. Opens the live rail.
+          ETH address. Send on Base from the hit, or open the live rail.
         </p>
         <div className="mt-5">
           <ScanDock />

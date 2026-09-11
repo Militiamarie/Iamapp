@@ -12,6 +12,30 @@ export const BASE_ADD_CHAIN = {
   blockExplorerUrls: [BASE_EXPLORER],
 };
 
+/** Base Vibenet — experimental pool. Resets. Never stamp production 1/1s here. */
+export const VIBENET_ID = 84538453;
+export const VIBENET_HEX = "0x509f455";
+export const VIBENET_RPC = "https://rpc.vibes.base.org";
+export const VIBENET_EXPLORER = "https://chain.base.org/vibenet/explorer";
+export const VIBENET_HUB = "https://chain.base.org/vibenet";
+export const VIBENET_FAUCET = "https://chain.base.org/vibenet/faucet";
+export const VIBENET_FAUCET_DRIP =
+  "https://api.vibes.base.org/api/vibenet/faucet/drip";
+export const VIBENET_HEALTH =
+  "https://api.vibes.base.org/api/vibenet/chain-health";
+export const VIBENET_USDV =
+  "0x64BD2e932FA41c9Fb7451996fbA3bd270d647d6D" as const;
+export const VIBENET_NFV =
+  "0x76850FA743f90B4878e1618A955D54A44daBF2fe" as const;
+
+export const VIBENET_ADD_CHAIN = {
+  chainId: VIBENET_HEX,
+  chainName: "Base Vibenet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: [VIBENET_RPC],
+  blockExplorerUrls: [VIBENET_EXPLORER],
+};
+
 export type Eip1193 = {
   request: (args: { method: string; params?: unknown[] | object }) => Promise<unknown>;
   on?: (event: string, handler: (...args: unknown[]) => void) => void;
@@ -53,9 +77,21 @@ export function basescanTx(hash: string) {
   return `${BASE_EXPLORER}/tx/${hash}`;
 }
 
+export function basescanAddress(address: string) {
+  return `${BASE_EXPLORER}/address/${address}`;
+}
+
 export function basescanToken(contract: string, tokenId?: string) {
   const base = `${BASE_EXPLORER}/token/${contract}`;
   return tokenId ? `${base}?a=${tokenId}` : base;
+}
+
+export function vibenetTx(hash: string) {
+  return `${VIBENET_EXPLORER}/tx/${hash}`;
+}
+
+export function vibenetToken(contract: string) {
+  return `${VIBENET_EXPLORER}/token/${contract}`;
 }
 
 export function openSeaItem(contract: string, tokenId: string) {
@@ -64,4 +100,24 @@ export function openSeaItem(contract: string, tokenId: string) {
 
 export function openSeaCollection(contract: string) {
   return `https://opensea.io/assets/base/${contract}`;
+}
+
+export function chainLabel(id?: number) {
+  if (id === VIBENET_ID) return "Vibenet";
+  if (id === BASE_ID) return "Base";
+  return id ? `Chain ${id}` : "Base";
+}
+
+export async function vibenetHealth() {
+  try {
+    const res = await fetch(VIBENET_HEALTH);
+    const json = (await res.json()) as { healthy?: boolean };
+    return Boolean(json.healthy);
+  } catch {
+    return false;
+  }
+}
+
+export function isEthAddress(value: string) {
+  return /^0x[a-fA-F0-9]{40}$/.test(value.trim());
 }

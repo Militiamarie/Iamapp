@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Wallet as WalletIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { SendRail } from "@/components/send-rail";
+import { VibenetPool } from "@/components/vibenet-pool";
 import {
-  basescanToken,
+  BASE_ID,
+  VIBENET_ID,
   basescanTx,
+  chainLabel,
   coinbaseDappUrl,
   openSeaCollection,
   openSeaItem,
@@ -21,22 +25,27 @@ export function OnchainVault() {
   const ready = useOnchain((s) => s.ready);
   const status = useOnchain((s) => s.status);
   const address = useOnchain((s) => s.address);
+  const chainId = useOnchain((s) => s.chainId);
   const eth = useOnchain((s) => s.eth);
   const usdc = useOnchain((s) => s.usdc);
   const collection = useOnchain((s) => s.collection);
   const mints = useOnchain((s) => s.mints);
+  const sends = useOnchain((s) => s.sends);
   const error = useOnchain((s) => s.error);
   const walletName = useOnchain((s) => s.walletName);
   const connect = useOnchain((s) => s.connect);
   const disconnect = useOnchain((s) => s.disconnect);
   const refresh = useOnchain((s) => s.refresh);
   const mintTape = useOnchain((s) => s.mintTape);
+  const switchBase = useOnchain((s) => s.switchBase);
   const bindAddress = useIam((s) => s.bindAddress);
   const houseConnect = useIam((s) => s.connect);
   const stampOnchain = useIam((s) => s.stampOnchain);
   const minted = useIam((s) => s.minted);
   const [busy, setBusy] = useState<string | null>(null);
   const [dapp, setDapp] = useState("https://go.cb-w.com/dapp");
+  const onVibenet = chainId === VIBENET_ID;
+  const onBase = chainId === BASE_ID || !chainId;
 
   useEffect(() => {
     setDapp(coinbaseDappUrl());
@@ -93,7 +102,7 @@ export function OnchainVault() {
         </div>
         {address ? (
           <span className="rounded-full bg-gold/15 px-2 py-1 text-xs uppercase tracking-[0.14em] text-gold">
-            Wallet live
+            {onVibenet ? "Pool live" : "Wallet live"}
           </span>
         ) : (
           <span className="rounded-full bg-gold/15 px-2 py-1 text-xs uppercase tracking-[0.14em] text-gold">
@@ -102,8 +111,9 @@ export function OnchainVault() {
         )}
       </div>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Coinbase is live on the web under Melitia Marie Productions. Connect
-        Coinbase Wallet. Mint a 1/1 on Base. This house never holds your keys.
+        Coinbase is live on the web under Melitia Marie Productions. Send ETH or
+        USDC. Connect the Vibenet pool. Stamp a 1/1 on Base. This house never
+        holds your keys.
       </p>
 
       {address ? (
@@ -111,6 +121,7 @@ export function OnchainVault() {
           <p className="mt-4 font-mono text-xs text-ash">
             {walletName ? `${walletName} · ` : ""}
             {shortAddr(address)}
+            {chainId ? ` · ${chainLabel(chainId)}` : ""}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-sm bg-void px-3 py-3">
@@ -167,6 +178,16 @@ export function OnchainVault() {
               Onramp ETH
               <ExternalLink className="size-3" />
             </Button>
+            {onVibenet ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void switchBase()}
+              >
+                Back to Base
+              </Button>
+            ) : null}
             <Button
               type="button"
               variant="ghost"
@@ -176,6 +197,8 @@ export function OnchainVault() {
               Disconnect
             </Button>
           </div>
+          <SendRail />
+          <VibenetPool />
         </>
       ) : (
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -215,7 +238,11 @@ export function OnchainVault() {
         </div>
       )}
 
+      {!address ? <VibenetPool /> : null}
+
       {error && status === "error" ? (
+        <p className="mt-3 text-sm text-magenta">{error}</p>
+      ) : error && address ? (
         <p className="mt-3 text-sm text-magenta">{error}</p>
       ) : null}
 
@@ -224,6 +251,11 @@ export function OnchainVault() {
           <p className="text-xs uppercase tracking-[0.16em] text-gold">
             Ready to stamp
           </p>
+          {!onBase ? (
+            <p className="mt-1 text-xs text-ash">
+              Stamp switches you back to Base. Vibenet is the test pool only.
+            </p>
+          ) : null}
           <ul className="mt-2 flex flex-col gap-2">
             {waiting.map((item) => (
               <li
@@ -247,6 +279,39 @@ export function OnchainVault() {
                   ) : null}
                   Stamp on Base
                 </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {sends.length > 0 ? (
+        <div className="mt-6">
+          <p className="text-xs uppercase tracking-[0.16em] text-gold">
+            Sent on Base
+          </p>
+          <ul className="mt-2 flex flex-col gap-2">
+            {sends.slice(0, 6).map((row) => (
+              <li
+                key={row.tx}
+                className="flex items-center justify-between gap-3 rounded-md bg-void px-3 py-2"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-ivory">
+                    {row.amount} {row.asset}
+                  </p>
+                  <p className="truncate font-mono text-xs text-ash">
+                    To {shortAddr(row.to)}
+                  </p>
+                </div>
+                <a
+                  href={basescanTx(row.tx)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center text-xs uppercase tracking-[0.14em] text-gold"
+                >
+                  Tx
+                </a>
               </li>
             ))}
           </ul>
@@ -318,4 +383,4 @@ export function OnchainBadge({
   );
 }
 
-export { basescanToken };
+export { basescanToken } from "@/lib/chain";
