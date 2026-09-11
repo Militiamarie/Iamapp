@@ -47,7 +47,7 @@ export function OnrampPanel({
     {
       kicker: HOUSE.productions,
       title: "Onramp USDC",
-      body: "Buy USDC on Base. Signed session under Melitia Marie Productions.",
+      body: "Buy USDC on Base. Live Coinbase under Melitia Marie Productions.",
       asset: "USDC",
     },
     {
@@ -79,11 +79,12 @@ export function OnrampPanel({
         Coinbase Developer
       </h2>
       <p className="mt-1 max-w-xl text-sm text-ash">
-        Onramp under Melitia Marie Productions on Coinbase. USDC and ETH land
-        on Base. This house does not hold your keys.
+        Live Coinbase on the web. Buy USDC or ETH, land it on Base, stamp
+        on-chain. Melitia Marie Productions. This house does not hold your
+        keys.
       </p>
-      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-magenta">
-        {cdpLive ? "CDP session live" : "Coinbase rail"}
+      <p className="mt-2 text-xs uppercase tracking-[0.14em] text-gold">
+        {cdpLive ? "CDP session live" : "Live on Coinbase"}
       </p>
       <div
         className={cn(

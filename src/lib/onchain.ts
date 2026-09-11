@@ -124,10 +124,8 @@ async function coinbaseSdkWallet(): Promise<{
       appLogoUrl: `${window.location.origin}/art/emblem.jpg`,
       appChainIds: [BASE_ID],
       preference: {
-        options: "all",
-        ...(import.meta.env.DEV
-          ? { keysUrl: "https://keys-dev.coinbase.com/connect" }
-          : {}),
+        options: "eoaOnly",
+        attribution: { auto: true },
       },
     });
     return { provider: sdk.getProvider() as Eip1193, name: "Coinbase Wallet" };

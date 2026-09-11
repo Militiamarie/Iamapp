@@ -47,7 +47,22 @@ async function finish() {
   await copyFile(index, join(out, "404.html"));
 
   // Routes the crawler may miss still need a shell so the SPA can hydrate.
-  for (const route of ["stage"]) {
+  for (const route of [
+    "stage",
+    "productions",
+    "altar",
+    "mint",
+    "scan",
+    "house",
+    "feed",
+    "market",
+    "vault",
+    "grimoire",
+    "install",
+    "privacy",
+    "terms",
+    "support",
+  ]) {
     const dir = join(out, route);
     await mkdir(dir, { recursive: true });
     if (!(await exists(join(dir, "index.html")))) {

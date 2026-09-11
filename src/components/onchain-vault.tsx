@@ -93,17 +93,17 @@ export function OnchainVault() {
         </div>
         {address ? (
           <span className="rounded-full bg-gold/15 px-2 py-1 text-xs uppercase tracking-[0.14em] text-gold">
-            Live
+            Wallet live
           </span>
         ) : (
-          <span className="rounded-full bg-void px-2 py-1 text-xs uppercase tracking-[0.14em] text-ash">
-            Off
+          <span className="rounded-full bg-gold/15 px-2 py-1 text-xs uppercase tracking-[0.14em] text-gold">
+            Web live
           </span>
         )}
       </div>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Coinbase Wallet under Melitia Marie Productions. Mint a 1/1 on Base.
-        Trade it on OpenSea. This house never holds your keys.
+        Coinbase is live on the web under Melitia Marie Productions. Connect
+        Coinbase Wallet. Mint a 1/1 on Base. This house never holds your keys.
       </p>
 
       {address ? (

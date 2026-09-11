@@ -31,8 +31,8 @@ export function Altar() {
         Productions
       </h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Connect Coinbase Wallet under Melitia Marie Productions. Onramp ETH.
-        Stamp a 1/1 on Base. Trade it on OpenSea. Scanner at the door.
+        Coinbase is live on the web under Melitia Marie Productions. Connect
+        Wallet. Onramp ETH. Stamp a 1/1 on Base. Scanner at the door.
       </p>
 
       <div className="mt-8">

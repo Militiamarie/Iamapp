@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { openHouseOnramp } from "@/lib/cdp-session";
-import type { OnrampAsset } from "@/lib/onramp";
+import { coinbaseOnramp, type OnrampAsset } from "@/lib/onramp";
 import { cn } from "@/lib/utils";
 
 export function OnrampLink({
@@ -17,12 +17,17 @@ export function OnrampLink({
   children: ReactNode;
 }) {
   return (
-    <button
-      type="button"
+    <a
+      href={coinbaseOnramp({ asset, amountUsd, address })}
+      target="_blank"
+      rel="noreferrer"
       className={cn("cursor-pointer text-left", className)}
-      onClick={() => void openHouseOnramp({ asset, amountUsd, address })}
+      onClick={(e) => {
+        e.preventDefault();
+        void openHouseOnramp({ asset, amountUsd, address });
+      }}
     >
       {children}
-    </button>
+    </a>
   );
 }
