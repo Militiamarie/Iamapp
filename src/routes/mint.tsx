@@ -51,8 +51,8 @@ function MintStudio() {
       <p className="mt-2 max-w-xl text-sm text-ash">
         Drop a tape, record in the booth, or paste a YouTube link, then press a
         playable 1/1 into the market. Stamp it on Base from{" "}
-        <Link to="/altar" className="text-gold">
-          Onchain
+        <Link to="/productions" className="text-gold">
+          Productions
         </Link>
         . The house takes {formatUsdc(MINT_FEE_USDC)} to press. Coinbase Onramp
         buys the ETH. Scanner sits under the press.
@@ -286,13 +286,13 @@ function MintStudio() {
           if (!item) return false;
           toast(`Pressed · ${item.title}`, {
             action: {
-              label: "Onchain",
+              label: "Productions",
               onClick: () => {
-                void navigate({ to: "/altar" });
+                void navigate({ to: "/productions" });
               },
             },
           });
-          void navigate({ to: "/altar" });
+          void navigate({ to: "/productions" });
           return true;
         }}
       />

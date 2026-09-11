@@ -104,9 +104,9 @@ function House() {
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/altar">
+              <Link to="/productions">
                 <Flame className="size-3.5" />
-                Onchain
+                Productions
               </Link>
             </Button>
             <Button asChild>

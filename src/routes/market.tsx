@@ -41,9 +41,9 @@ function Market() {
         <Link to="/mint" className="text-gold">
           studio
         </Link>
-        . Live rails on the{" "}
-        <Link to="/altar" className="text-gold">
-          altar
+        . Live rails in{" "}
+        <Link to="/productions" className="text-gold">
+          Productions
         </Link>
         .
       </p>

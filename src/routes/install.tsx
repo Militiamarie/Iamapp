@@ -181,7 +181,7 @@ function Install() {
         </ul>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button asChild>
-            <Link to="/altar">Open the altar</Link>
+            <Link to="/productions">Open Productions</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/support">Support</Link>

@@ -142,8 +142,8 @@ export function WalletButton() {
               </a>
             </Button>
             <Button asChild variant="outline" size="sm" className="flex-1">
-              <Link to="/altar" onClick={() => setOpen(false)}>
-                Onchain
+              <Link to="/productions" onClick={() => setOpen(false)}>
+                Productions
               </Link>
             </Button>
           </div>

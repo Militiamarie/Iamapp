@@ -10,7 +10,7 @@ Live source: [github.com/Militiamarie/Iamapp](https://github.com/Militiamarie/Ia
 
 Anyone with the link can open the house in a browser, play the catalog, and install I AM on their phone.
 
-**Onchain** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, on-ramp (buy USDC / ETH), stamp a 1/1, trade on OpenSea, scan Cash App / Coinbase / OpenSea at the door.
+**Productions** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, on-ramp (buy USDC / ETH), stamp a 1/1, trade on OpenSea, scan Cash App / Coinbase / OpenSea at the door.
 
 This house never holds keys. Demo vault is for the temple. Live rails are Coinbase, Cash App, OpenSea, and Base.
 
@@ -43,7 +43,7 @@ Requires Node 22.
 | Feed | House posts |
 | Scan | Camera QR / barcode for Cash App, Coinbase, OpenSea |
 | Market | Collect music, beats, spells, sigils, deity work, quotes |
-| Onchain | Melitia Marie Productions on Coinbase Developer, Base mint, OpenSea, scanner |
+| Productions | Melitia Marie Productions on Coinbase Developer, Base mint, OpenSea, scanner |
 | Studio | Press a 1/1 — drop audio or record in the booth |
 | Grimoire | Reduce an intent into a gold-and-magenta plate |
 | Stage | Rites, 528Hz nave, shoutouts |

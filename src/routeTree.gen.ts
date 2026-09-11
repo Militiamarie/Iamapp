@@ -18,6 +18,7 @@ import { Route as InstallRouteImport } from './routes/install'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as MintRouteImport } from './routes/mint'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProductionsRouteImport } from './routes/productions'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as StageRouteImport } from './routes/stage'
 import { Route as SupportRouteImport } from './routes/support'
@@ -70,6 +71,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductionsRoute = ProductionsRouteImport.update({
+  id: '/productions',
+  path: '/productions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScanRoute = ScanRouteImport.update({
   id: '/scan',
   path: '/scan',
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
   '/privacy': typeof PrivacyRoute
+  '/productions': typeof ProductionsRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
   '/support': typeof SupportRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
   '/privacy': typeof PrivacyRoute
+  '/productions': typeof ProductionsRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
   '/support': typeof SupportRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/mint': typeof MintRoute
   '/privacy': typeof PrivacyRoute
+  '/productions': typeof ProductionsRoute
   '/scan': typeof ScanRoute
   '/stage': typeof StageRoute
   '/support': typeof SupportRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/mint'
     | '/privacy'
+    | '/productions'
     | '/scan'
     | '/stage'
     | '/support'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/mint'
     | '/privacy'
+    | '/productions'
     | '/scan'
     | '/stage'
     | '/support'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/mint'
     | '/privacy'
+    | '/productions'
     | '/scan'
     | '/stage'
     | '/support'
@@ -217,6 +229,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   MintRoute: typeof MintRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProductionsRoute: typeof ProductionsRoute
   ScanRoute: typeof ScanRoute
   StageRoute: typeof StageRoute
   SupportRoute: typeof SupportRoute
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/productions': {
+      id: '/productions'
+      path: '/productions'
+      fullPath: '/productions'
+      preLoaderRoute: typeof ProductionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scan': {
       id: '/scan'
       path: '/scan'
@@ -345,6 +365,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   MintRoute: MintRoute,
   PrivacyRoute: PrivacyRoute,
+  ProductionsRoute: ProductionsRoute,
   ScanRoute: ScanRoute,
   StageRoute: StageRoute,
   SupportRoute: SupportRoute,

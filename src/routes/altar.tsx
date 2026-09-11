@@ -13,7 +13,7 @@ import { useIam } from "@/lib/store";
 
 export const Route = createFileRoute("/altar")({ component: Altar });
 
-function Altar() {
+export function Altar() {
   const profile = useIam((s) => s.profile);
   const collects = useIam((s) => s.collects);
   const minted = useIam((s) => s.minted);
@@ -28,7 +28,7 @@ function Altar() {
         Melitia Marie Productions
       </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">
-        Onchain
+        Productions
       </h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
         Connect Coinbase Wallet under Melitia Marie Productions. Onramp ETH.

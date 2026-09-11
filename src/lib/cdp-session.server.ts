@@ -118,7 +118,7 @@ export async function issueOnrampSession(
   params.set("defaultNetwork", "base");
   params.set("fiatCurrency", "USD");
   params.set("partnerUserRef", HOUSE.partnerRef);
-  params.set("redirectUrl", `${origin}/altar`);
+  params.set("redirectUrl", `${origin}/productions`);
   if (input.amountUsd && input.amountUsd > 0) {
     params.set(
       "presetFiatAmount",

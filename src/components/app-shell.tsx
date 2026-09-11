@@ -34,7 +34,7 @@ const PRIMARY = [
 
 const DESKTOP = [
   ...PRIMARY,
-  { to: "/altar", label: "Onchain", icon: Flame },
+  { to: "/productions", label: "Productions", icon: Flame },
   { to: "/grimoire", label: "Grimoire", icon: BookOpen },
   { to: "/vault", label: "Vault", icon: Library },
 ] as const;
@@ -79,7 +79,10 @@ export function AppShell() {
                 active={
                   item.to === "/"
                     ? pathname === "/"
-                    : pathname.startsWith(item.to)
+                    : item.to === "/productions"
+                      ? pathname.startsWith("/productions") ||
+                        pathname.startsWith("/altar")
+                      : pathname.startsWith(item.to)
                 }
               />
             ))}
@@ -98,14 +101,16 @@ export function AppShell() {
               <span className="hidden sm:inline">Get app</span>
             </Link>
             <Link
-              to="/altar"
+              to="/productions"
               className={cn(
                 "inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)] transition-colors duration-(--motion-quick) hover:bg-gold/10 lg:hidden",
-                pathname.startsWith("/altar") && "bg-gold/10",
+                (pathname.startsWith("/productions") ||
+                  pathname.startsWith("/altar")) &&
+                  "bg-gold/10",
               )}
             >
               <Flame className="size-3.5" />
-              <span className="hidden sm:inline">Onchain</span>
+              <span className="hidden md:inline">Productions</span>
             </Link>
             <Link
               to="/mint"
