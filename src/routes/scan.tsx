@@ -1,14 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { LinkscanDoor } from "@/components/linkscan-door";
 import { OnrampPanel } from "@/components/onramp-panel";
 import { RailQr } from "@/components/rail-qr";
 import { ScanDock } from "@/components/scan-dock";
 import { Button } from "@/components/ui/button";
+import { ingestLinkscanSearch } from "@/lib/linkscan";
 import { houseRails, RAIL_LABEL } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 
-export const Route = createFileRoute("/scan")({ component: Scan });
+type ScanSearch = {
+  q?: string;
+  scan?: string;
+  from?: string;
+};
+
+export const Route = createFileRoute("/scan")({
+  validateSearch: (s: Record<string, unknown>): ScanSearch => ({
+    q: typeof s.q === "string" ? s.q : undefined,
+    scan: typeof s.scan === "string" ? s.scan : undefined,
+    from: typeof s.from === "string" ? s.from : undefined,
+  }),
+  component: Scan,
+});
 
 function Scan() {
+  const search = Route.useSearch();
+  const inbound = ingestLinkscanSearch(search);
   const collects = useIam((s) => s.collects);
   const profile = useIam((s) => s.profile);
   const mine = houseRails(profile);
@@ -18,13 +35,20 @@ function Scan() {
       <p className="text-xs uppercase tracking-[0.22em] text-magenta">Door</p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Scan</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Camera on a Cash App cashtag, Coinbase wallet, OpenSea listing, or ETH
-        address. Coinbase Onramp sits under the booth for buy, trade, and
-        on-chain mint.
+        Camera on a Cash App cashtag, Coinbase wallet, OpenSea listing, NFT
+        market, barcode, or ETH address. LinkScan is wired to this booth —
+        scans there land here. Coinbase Onramp sits under the booth.
       </p>
 
       <div className="mt-8">
-        <ScanDock />
+        <LinkscanDoor />
+      </div>
+
+      <div className="mt-8">
+        <ScanDock
+          seed={inbound?.raw}
+          fromLinkscan={inbound?.fromLinkscan}
+        />
       </div>
 
       <div className="mt-12">
@@ -36,7 +60,7 @@ function Scan() {
         <h2 className="mt-1 text-2xl text-ivory uppercase">Scan me</h2>
         <p className="mt-2 max-w-xl text-sm text-ash">
           Hold these up. Cash App, Coinbase, and OpenSea read the code in the
-          room.
+          room. LinkScan reads the same rails plus barcodes.
         </p>
         {mine.length === 0 ? (
           <div className="mt-4">

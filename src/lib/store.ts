@@ -434,14 +434,18 @@ export const useIam = create<IamState>()(
         });
       },
       collectScan: (hit) => {
-        if (hit.kind === "unknown" || !hit.url) return null;
-        const existing = get().collects.find((c) => c.url === hit.url);
+        if (hit.kind === "unknown") return null;
+        if (!hit.url && hit.kind !== "barcode") return null;
+        const key = hit.url || hit.raw;
+        const existing = get().collects.find(
+          (c) => c.url === key || c.raw === hit.raw,
+        );
         if (existing) return existing;
         const row: ChainCollect = {
           id: `scan-${Date.now().toString(36)}`,
           kind: hit.kind,
           title: hit.title,
-          url: hit.url,
+          url: hit.url || hit.raw,
           display: hit.display,
           at: Date.now(),
           raw: hit.raw,

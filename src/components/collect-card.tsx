@@ -1,6 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import { Ago } from "@/components/ago";
-import { RAIL_LABEL } from "@/lib/rails";
+import { collectAction, RAIL_LABEL } from "@/lib/rails";
 import type { ChainCollect } from "@/lib/types";
 
 export function CollectCard({
@@ -28,7 +28,7 @@ export function CollectCard({
         rel="noreferrer"
         className="mt-3 inline-flex min-h-11 items-center gap-1 text-xs uppercase tracking-[0.14em] text-gold"
       >
-        Trade on {RAIL_LABEL[collect.kind]}
+        {collectAction(collect.kind)}
         <ExternalLink className="size-3" />
       </a>
     </article>

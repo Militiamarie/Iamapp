@@ -126,7 +126,7 @@ export type HousePost = {
 
 export type ChainCollect = {
   id: string;
-  kind: "cashapp" | "coinbase" | "opensea" | "eth";
+  kind: "cashapp" | "coinbase" | "opensea" | "eth" | "nft" | "barcode";
   title: string;
   url: string;
   display: string;

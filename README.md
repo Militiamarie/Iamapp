@@ -12,6 +12,8 @@ Anyone with the link can open the house in a browser, play the catalog, and inst
 
 **Productions** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, send ETH / USDC, Vibenet test pool, on-ramp, stamp a 1/1, live OpenSea (`opensea.io/melitiamarie`), scan Cash App / Coinbase / OpenSea at the door.
 
+**LinkScan** ([live](https://militiamarie.github.io/linkscan/) · [hub](https://github.com/Militiamarie/linkscan)) is the sister scanner. Open it from Scan. A hit there returns to `/scan?from=linkscan&q=…` and lands in the booth. QR plus UPC / EAN / Code 128. Cash App and NFT URLs.
+
 **Mass pay** (`/payouts`) builds the Unchained Bitcoin CSV (vault → withdraw → multiple addresses → you sign) and Base USDC / ETH splits from Coinbase Wallet. Hub copy: [`payouts/`](payouts/). This house never holds keys.
 
 Demo vault is for the temple. Live rails are Coinbase, Cash App, OpenSea, Base, and Unchained (CSV you sign).
@@ -43,7 +45,7 @@ Requires Node 22.
 | Temple | Featured plates and the door into the house |
 | House | Profile, wall, grid, stills |
 | Feed | House posts |
-| Scan | Camera QR / barcode for Cash App, Coinbase, OpenSea |
+| Scan | Camera QR / barcode for Cash App, Coinbase, OpenSea, NFT markets — LinkScan handshake |
 | Market | Collect music, beats, spells, sigils, deity work, quotes |
 | Productions | Melitia Marie Productions on Coinbase Developer, send on Base, Vibenet pool, OpenSea, scanner |
 | Mass pay | Roster, Unchained BTC CSV, Base USDC / ETH batch, hub JSON |

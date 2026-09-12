@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, Stamp, Banknote } from "lucide-react";
 import { CollectCard } from "@/components/collect-card";
 import { HouseLinks } from "@/components/house-links";
+import { LinkscanDoor } from "@/components/linkscan-door";
 import { LiveRails } from "@/components/live-rails";
 import { OnchainVault } from "@/components/onchain-vault";
 import { OnrampPanel } from "@/components/onramp-panel";
@@ -81,8 +82,12 @@ export function Altar() {
         <h2 className="mt-1 text-lg text-ivory uppercase sm:text-xl">Scanner</h2>
         <p className="mt-1 max-w-xl text-sm text-ash">
           Camera on a Cash App cashtag, Coinbase wallet, OpenSea listing, or
-          ETH address. Send on Base from the hit, or open the live rail.
+          ETH address. LinkScan is the sister booth — barcodes and NFT URLs
+          come back here. Send on Base from the hit, or open the live rail.
         </p>
+        <div className="mt-5">
+          <LinkscanDoor />
+        </div>
         <div className="mt-5">
           <ScanDock />
         </div>

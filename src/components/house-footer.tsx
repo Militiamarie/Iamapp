@@ -29,6 +29,14 @@ export function HouseFooter() {
             </Link>
           ))}
           <a
+            href={HOUSE.linkscan}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-11 items-center text-[0.65rem] uppercase tracking-[0.16em] text-ash hover:text-gold"
+          >
+            LinkScan
+          </a>
+          <a
             href={HOUSE.github}
             target="_blank"
             rel="noreferrer"

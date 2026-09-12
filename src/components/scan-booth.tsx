@@ -38,7 +38,7 @@ export function ScanBooth({
   function emit(raw: string) {
     const hit = parseScan(raw);
     if (hit.kind === "unknown") {
-      toast("That code is not Cash App, Coinbase, OpenSea, or an ETH address.");
+      toast("That code is not Cash App, Coinbase, OpenSea, NFT, or a barcode.");
       return;
     }
     onHit(hit);
@@ -65,7 +65,19 @@ export function ScanBooth({
         window as unknown as { BarcodeDetector?: new (o: { formats: string[] }) => Detector }
       ).BarcodeDetector;
       const det = Detector
-        ? new Detector({ formats: ["qr_code", "ean_13", "code_128"] })
+        ? new Detector({
+            formats: [
+              "qr_code",
+              "ean_13",
+              "ean_8",
+              "upc_a",
+              "upc_e",
+              "code_128",
+              "code_39",
+              "codabar",
+              "itf",
+            ],
+          })
         : null;
       const tick = async () => {
         const v = videoRef.current;
@@ -156,8 +168,8 @@ export function ScanBooth({
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-void/70 p-4 text-center">
             <ScanLine className="size-8 text-gold" />
             <p className="max-w-xs text-sm text-ash">
-              Point at a Cash App, Coinbase, or OpenSea code. Or paste the
-              link below.
+              Point at a Cash App, Coinbase, OpenSea, NFT, or barcode. Or paste
+              the link below. LinkScan can send a hit back here.
             </p>
             <Button type="button" disabled={busy} onClick={() => void startCam()}>
               <Camera className="size-4" />
@@ -179,7 +191,7 @@ export function ScanBooth({
           <Input
             id="scan-paste"
             value={paste}
-            placeholder="cash.app/$tag · opensea.io/item/… · 0x…"
+            placeholder="cash.app/$tag · opensea · 0x… · barcode"
             onChange={(e) => setPaste(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && paste.trim()) emit(paste);

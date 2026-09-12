@@ -31,6 +31,10 @@ export function HouseLinks({ className }: { className?: string }) {
       label: "Coinbase",
       href: links.coinbase || HOUSE.coinbase,
     },
+    {
+      label: "LinkScan",
+      href: HOUSE.linkscan,
+    },
   ];
 
   return (

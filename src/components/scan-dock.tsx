@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { ScanBooth } from "@/components/scan-booth";
@@ -12,24 +12,49 @@ import {
   cashPayUrl,
   coinbaseSendUrl,
   hitAction,
+  parseScan,
   RAIL_LABEL,
   type ScanHit,
 } from "@/lib/rails";
 import { useIam } from "@/lib/store";
 
-export function ScanDock({ compact = false }: { compact?: boolean }) {
+export function ScanDock({
+  compact = false,
+  seed,
+  fromLinkscan = false,
+}: {
+  compact?: boolean;
+  seed?: string;
+  fromLinkscan?: boolean;
+}) {
   const collectScan = useIam((s) => s.collectScan);
   const wallet = useIam((s) => s.wallet);
+  const ready = useIam((s) => s.ready);
   const [hit, setHit] = useState<ScanHit | null>(null);
   const [amount, setAmount] = useState("12");
+  const seeded = useRef(false);
   const address = wallet.connected ? wallet.address : undefined;
   const payTo = hit?.address;
 
   function keep(next: ScanHit) {
     setHit(next);
     const row = collectScan(next);
-    if (row) toast(`Logged · ${RAIL_LABEL[next.kind]}`);
+    if (row) {
+      toast(
+        fromLinkscan
+          ? `LinkScan · ${RAIL_LABEL[next.kind]}`
+          : `Logged · ${RAIL_LABEL[next.kind]}`,
+      );
+    } else if (next.url) {
+      toast(fromLinkscan ? "LinkScan sent a link" : "Unrecognized rail");
+    }
   }
+
+  useEffect(() => {
+    if (!ready || seeded.current || !seed) return;
+    seeded.current = true;
+    keep(parseScan(seed));
+  }, [ready, seed]);
 
   const payHref =
     hit?.kind === "cashapp" && hit.cashtag
@@ -48,6 +73,7 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
         {hit ? (
           <>
             <p className="mt-3 text-xs uppercase tracking-[0.16em] text-magenta">
+              {fromLinkscan ? "LinkScan · " : ""}
               {RAIL_LABEL[hit.kind]}
             </p>
             <h2 className="mt-1 font-display text-xl tracking-[0.12em] text-ivory uppercase">
@@ -77,7 +103,7 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
                 </a>
               </Button>
             ) : null}
-            {hit.kind === "opensea" ? (
+            {hit.kind === "opensea" || hit.kind === "nft" ? (
               <Button asChild variant="outline" className="mt-2 w-full">
                 <a href={openSeaCreate()} target="_blank" rel="noreferrer">
                   Mint on OpenSea
@@ -112,8 +138,8 @@ export function ScanDock({ compact = false }: { compact?: boolean }) {
           </>
         ) : (
           <p className="mt-3 text-sm text-ash">
-            Camera, paste, or still. Cash App, Coinbase, OpenSea, ETH. Then
-            pay, send on Base, or mint.
+            Camera, paste, still, or LinkScan. Cash App, Coinbase, OpenSea,
+            NFT markets, barcodes. Then pay, send on Base, or mint.
           </p>
         )}
       </aside>

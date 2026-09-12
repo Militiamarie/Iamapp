@@ -1,7 +1,14 @@
 import { shortAddr } from "./format";
 import type { HouseProfile } from "./types";
 
-export type ChainKind = "cashapp" | "coinbase" | "opensea" | "eth" | "unknown";
+export type ChainKind =
+  | "cashapp"
+  | "coinbase"
+  | "opensea"
+  | "eth"
+  | "nft"
+  | "barcode"
+  | "unknown";
 
 export type ScanHit = {
   kind: ChainKind;
@@ -17,7 +24,7 @@ export type ScanHit = {
 };
 
 export type HouseRail = {
-  kind: Exclude<ChainKind, "unknown">;
+  kind: Exclude<ChainKind, "unknown" | "barcode" | "nft">;
   label: string;
   url: string;
   qrValue: string;
@@ -29,6 +36,8 @@ const CASH =
   /(?:cash\.app\/(?:qr\/)?\$?|cashtag:|cashme:|\$)([A-Za-z][A-Za-z0-9_]{1,20})/i;
 const OPENSEA_ITEM =
   /opensea\.io\/(?:assets|item)\/([a-z0-9-]+)\/(0x[a-fA-F0-9]{40})\/(\d+)/i;
+const NFT_MARKET =
+  /magiceden\.io|blur\.io|rarible\.com|zora\.co|foundation\.app|solscan\.io|polygonscan\.com|etherscan\.io|basescan\.org/i;
 
 export function asHttp(raw: string) {
   const t = raw.trim();
@@ -66,6 +75,13 @@ export function coinbaseUrl(raw: string) {
   if (/^https?:\/\//i.test(t)) return t;
   if (/coinbase\.com|go\.cb-w\.com/i.test(t)) return `https://${t.replace(/^https?:\/\//, "")}`;
   return asHttp(t);
+}
+
+function looksLikeBarcode(text: string) {
+  const t = text.trim();
+  if (/^\d{6,14}$/.test(t)) return true;
+  if (/^https?:/i.test(t) || t.includes(".")) return false;
+  return /^[A-Z0-9\-./+$%]{4,48}$/i.test(t);
 }
 
 export function parseScan(input: string): ScanHit {
@@ -118,6 +134,18 @@ export function parseScan(input: string): ScanHit {
     }
   }
 
+  if (NFT_MARKET.test(raw)) {
+    const url = raw.startsWith("http") ? raw : asHttp(raw);
+    return {
+      kind: "nft",
+      title: "NFT / chain link",
+      url,
+      display: url.replace(/^https?:\/\//, "").slice(0, 64),
+      address: raw.match(ETH)?.[1],
+      raw,
+    };
+  }
+
   if (/coinbase\.com|go\.cb-w\.com|wallet\.coinbase|cbwallet:|pay\.coinbase/i.test(raw)) {
     const eth = raw.match(ETH);
     const url = raw.startsWith("http")
@@ -146,9 +174,22 @@ export function parseScan(input: string): ScanHit {
     return {
       kind: "eth",
       title: "ETH address",
-      url: `https://etherscan.io/address/${address}`,
+      url: `https://basescan.org/address/${address}`,
       display: shortAddr(address),
       address,
+      raw,
+    };
+  }
+
+  if (looksLikeBarcode(raw)) {
+    const digits = /^\d{8,14}$/.test(raw);
+    return {
+      kind: "barcode",
+      title: "Barcode",
+      url: digits
+        ? `https://www.google.com/search?q=${encodeURIComponent(`${raw} barcode`)}`
+        : "",
+      display: raw,
       raw,
     };
   }
@@ -217,12 +258,25 @@ export const RAIL_LABEL: Record<ChainKind, string> = {
   coinbase: "Coinbase",
   opensea: "OpenSea",
   eth: "Onchain",
+  nft: "NFT",
+  barcode: "Barcode",
   unknown: "Unknown",
 };
 
 export function hitAction(hit: ScanHit) {
   if (hit.kind === "opensea") return "Trade on OpenSea";
+  if (hit.kind === "nft") return "Open listing";
   if (hit.kind === "cashapp") return "Pay on Cash App";
   if (hit.kind === "coinbase" || hit.kind === "eth") return "Open Coinbase";
+  if (hit.kind === "barcode") return "Look up barcode";
+  return "Open rail";
+}
+
+export function collectAction(kind: ChainKind) {
+  if (kind === "barcode") return "Look up";
+  if (kind === "cashapp") return "Pay on Cash App";
+  if (kind === "nft") return "Open listing";
+  if (kind === "opensea") return "Trade on OpenSea";
+  if (kind === "coinbase" || kind === "eth") return "Open Coinbase";
   return "Open rail";
 }
