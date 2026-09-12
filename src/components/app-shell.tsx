@@ -11,6 +11,7 @@ import {
   ScanLine,
   Stamp,
   UserRound,
+  Banknote,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { DripVeil } from "@/components/drip-veil";
@@ -22,6 +23,7 @@ import { WalletButton } from "@/components/wallet-button";
 import { usePlayer } from "@/lib/player";
 import { hydrateIam } from "@/lib/store";
 import { hydrateOnchain } from "@/lib/onchain";
+import { hydrateMassPay } from "@/lib/mass-pay";
 import { cn } from "@/lib/utils";
 
 const PRIMARY = [
@@ -46,6 +48,7 @@ export function AppShell() {
   useEffect(() => {
     hydrateIam();
     hydrateOnchain();
+    hydrateMassPay();
   }, []);
 
   useEffect(() => {
@@ -55,11 +58,11 @@ export function AppShell() {
   }, []);
 
   return (
-    <div className="relative min-h-dvh bg-void text-ivory">
+    <div className="relative min-h-dvh overflow-x-hidden bg-void text-ivory">
       <div className="grain" />
       <DripVeil />
       <header className="sticky top-0 z-20 border-b border-border bg-void/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-16 sm:px-6">
+        <div className="mx-auto flex h-14 w-full min-w-0 max-w-6xl items-center gap-3 overflow-x-auto px-4 sm:h-16 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5">
             <img
               src="/art/emblem.jpg"
@@ -111,6 +114,16 @@ export function AppShell() {
             >
               <Flame className="size-3.5" />
               <span className="hidden md:inline">Productions</span>
+            </Link>
+            <Link
+              to="/payouts"
+              className={cn(
+                "inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium uppercase tracking-[0.14em] text-gold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-gold)_55%,transparent)] transition-colors duration-(--motion-quick) hover:bg-gold/10",
+                pathname.startsWith("/payouts") && "bg-gold/10",
+              )}
+            >
+              <Banknote className="size-3.5" />
+              <span className="hidden lg:inline">Pay</span>
             </Link>
             <Link
               to="/mint"

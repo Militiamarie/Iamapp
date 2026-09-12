@@ -12,7 +12,9 @@ export function AppErrorComponent({ error }: ErrorComponentProps) {
         The nave snagged
       </h1>
       <p className="max-w-md text-sm break-words text-ash">
-        {error.message || "An unexpected error occurred. Try reloading."}
+        {error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Try reloading."}
       </p>
       <a
         href="/"

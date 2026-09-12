@@ -1,0 +1,9 @@
+{
+  "house": "I AM",
+  "artist": "Melitiamarie",
+  "productions": "Melitia Marie Productions",
+  "rails": ["unchained", "base-usdc", "base-eth"],
+  "updated": "2026-09-12T10:40:00Z",
+  "note": "CSV is the Unchained upload. Signing stays in your vault. This house never holds keys.",
+  "payees": []
+}

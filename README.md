@@ -12,7 +12,9 @@ Anyone with the link can open the house in a browser, play the catalog, and inst
 
 **Productions** is the nave: Melitia Marie Productions on Coinbase Developer, Wallet on Base, send ETH / USDC, Vibenet test pool, on-ramp, stamp a 1/1, live OpenSea (`opensea.io/melitiamarie`), scan Cash App / Coinbase / OpenSea at the door.
 
-This house never holds keys. Demo vault is for the temple. Live rails are Coinbase, Cash App, OpenSea, and Base.
+**Mass pay** (`/payouts`) builds the Unchained Bitcoin CSV (vault → withdraw → multiple addresses → you sign) and Base USDC / ETH splits from Coinbase Wallet. Hub copy: [`payouts/`](payouts/). This house never holds keys.
+
+Demo vault is for the temple. Live rails are Coinbase, Cash App, OpenSea, Base, and Unchained (CSV you sign).
 
 ## Install as an app
 
@@ -44,12 +46,13 @@ Requires Node 22.
 | Scan | Camera QR / barcode for Cash App, Coinbase, OpenSea |
 | Market | Collect music, beats, spells, sigils, deity work, quotes |
 | Productions | Melitia Marie Productions on Coinbase Developer, send on Base, Vibenet pool, OpenSea, scanner |
+| Mass pay | Roster, Unchained BTC CSV, Base USDC / ETH batch, hub JSON |
 | Studio | Press a 1/1 — drop audio or record in the booth |
 | Grimoire | Reduce an intent into a gold-and-magenta plate |
 | Stage | Rites, 528Hz nave, shoutouts |
 | Vault | What you collected on this device |
 
-Demo USDC / ETH in the vault is house credit, not real money. Coinbase, Cash App, and OpenSea are the live rails — nothing is custodied here.
+Demo USDC / ETH in the vault is house credit, not real money. Coinbase, Cash App, and OpenSea are the live rails — nothing is custodied here. Unchained mass pay is a CSV you upload and sign in your own vault.
 
 ## Legal
 

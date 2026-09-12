@@ -3,6 +3,7 @@ import { HouseLinks } from "@/components/house-links";
 import { HOUSE } from "@/lib/site";
 
 const LINKS = [
+  { to: "/payouts" as const, label: "Mass pay" },
   { to: "/install" as const, label: "Get the app" },
   { to: "/support" as const, label: "Support" },
   { to: "/privacy" as const, label: "Privacy" },

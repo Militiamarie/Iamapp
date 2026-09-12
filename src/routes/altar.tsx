@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ExternalLink, Stamp } from "lucide-react";
+import { ExternalLink, Stamp, Banknote } from "lucide-react";
 import { CollectCard } from "@/components/collect-card";
 import { HouseLinks } from "@/components/house-links";
 import { LiveRails } from "@/components/live-rails";
@@ -34,7 +34,8 @@ export function Altar() {
       <p className="mt-2 max-w-xl text-sm text-ash">
         Coinbase is live on the web under Melitia Marie Productions. Connect
         Wallet. Send ETH or USDC. Hit the Vibenet pool. Stamp a 1/1 on Base.
-        Scanner at the door.
+        Scanner at the door. Mass pay builds the Unchained CSV and Base
+        splits.
       </p>
 
       <div className="mt-8">
@@ -44,6 +45,36 @@ export function Altar() {
       <div className="mt-8">
         <OnchainVault />
       </div>
+
+      <section className="mt-10 rounded-lg bg-surface p-4 shadow-foil sm:p-6">
+        <p className="text-xs uppercase tracking-[0.18em] text-gold">
+          Payroll
+        </p>
+        <h2 className="mt-1 text-lg uppercase text-ivory">Mass pay</h2>
+        <p className="mt-2 max-w-xl text-sm text-ash">
+          Roster on this device. Unchained CSV for Bitcoin batch spend — you
+          upload and sign in the vault. Base USDC / ETH from Coinbase Wallet.
+          Hub copy lives on GitHub.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button asChild>
+            <Link to="/payouts">
+              <Banknote className="size-3.5" />
+              Open mass pay
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a
+              href="https://app.unchained.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Unchained vault
+              <ExternalLink className="size-3.5" />
+            </a>
+          </Button>
+        </div>
+      </section>
 
       <section className="mt-10">
         <p className="text-xs uppercase tracking-[0.18em] text-gold">Door</p>
