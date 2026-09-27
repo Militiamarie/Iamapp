@@ -8,11 +8,8 @@ import { SigilMark } from "@/components/sigil-mark";
 import { Button } from "@/components/ui/button";
 import { isPlayable, mergeCatalog } from "@/lib/catalog";
 import { formatUsdc, kindLabel } from "@/lib/format";
-import {
-  nftMeta,
-  shareDrop,
-  tradeUrl,
-} from "@/lib/nft";
+import { nftMeta, shareDrop, tradeUrl } from "@/lib/nft";
+import { useOnchain } from "@/lib/onchain";
 import { asPlaySource, usePlayer } from "@/lib/player";
 import { useIam } from "@/lib/store";
 import type { CatalogItem } from "@/lib/types";
@@ -37,6 +34,9 @@ export function CatalogCard({
   const live = active && playing;
   const canPlay = isPlayable(item);
   const meta = nftMeta(item);
+  const plate = useOnchain((s) => s.plates[item.id]);
+  const contract = item.onchain?.contract || plate?.contract;
+  const [stamping, setStamping] = useState(false);
 
   function onPlay() {
     if (active) {
@@ -108,6 +108,7 @@ export function CatalogCard({
           </h3>
           <p className="mt-1 text-xs uppercase tracking-[0.16em] text-gold-dim">
             {item.creator} · #{meta.tokenId} · {meta.chain}
+            {contract ? ` · ${contract.slice(0, 6)}…${contract.slice(-4)}` : " · unstamped"}
           </p>
         </div>
         <p className="line-clamp-3 flex-1 text-sm text-ash">{item.blurb}</p>
@@ -132,11 +133,44 @@ export function CatalogCard({
               Drop
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm">
-            <a href={tradeUrl(item)} target="_blank" rel="noreferrer">
-              Trade
-            </a>
-          </Button>
+          {contract ? (
+            <Button asChild variant="ghost" size="sm">
+              <a href={tradeUrl(item)} target="_blank" rel="noreferrer">
+                Trade
+              </a>
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={stamping}
+              onClick={async () => {
+                setStamping(true);
+                const row = await useOnchain.getState().mintTape({
+                  title: item.title,
+                  blurb: item.blurb,
+                  image: item.image,
+                  kind: item.kind,
+                  creator: item.creator,
+                  youtubeId: item.youtubeId,
+                  itemId: item.id,
+                  hosted: true,
+                });
+                setStamping(false);
+                if (!row) {
+                  toast(useOnchain.getState().error || "Connect a wallet, then stamp");
+                  return;
+                }
+                window.open(
+                  tradeUrl({ ...item, onchain: undefined }),
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              }}
+            >
+              {stamping ? "Stamping" : "Trade"}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"

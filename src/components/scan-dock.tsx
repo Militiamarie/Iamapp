@@ -7,7 +7,7 @@ import { SendRail } from "@/components/send-rail";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { basescanAddress } from "@/lib/chain";
-import { openSeaCreate } from "@/lib/onramp";
+import { useOnchain } from "@/lib/onchain";
 import {
   cashPayUrl,
   coinbaseSendUrl,
@@ -39,6 +39,9 @@ export function ScanDock({
   function keep(next: ScanHit) {
     setHit(next);
     const row = collectScan(next);
+    if (next.kind === "opensea" || next.kind === "nft") {
+      void useOnchain.getState().bringIn(next.url || next.raw);
+    }
     if (row) {
       toast(
         fromLinkscan
@@ -104,12 +107,9 @@ export function ScanDock({
               </Button>
             ) : null}
             {hit.kind === "opensea" || hit.kind === "nft" ? (
-              <Button asChild variant="outline" className="mt-2 w-full">
-                <a href={openSeaCreate()} target="_blank" rel="noreferrer">
-                  Mint on OpenSea
-                  <ExternalLink className="size-3.5" />
-                </a>
-              </Button>
+              <p className="mt-3 text-xs text-ash">
+                Same token everywhere. Trading it on OpenSea moves it in every wallet.
+              </p>
             ) : null}
             {hit.kind === "eth" || hit.kind === "coinbase" ? (
               <>

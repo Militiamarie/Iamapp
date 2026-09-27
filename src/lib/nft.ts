@@ -1,20 +1,11 @@
 import { openSeaItem } from "./chain";
 import { openSeaCreate, openSeaSearch } from "./onramp";
+import { useOnchain } from "./onchain";
 import { liveOrigin } from "./site";
+import { tokenIdFor } from "./token-id";
 import type { CatalogItem } from "./types";
 
-function hashId(id: string) {
-  let h = 2166136261;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-export function tokenIdFor(id: string) {
-  return (hashId(id) % 9000) + 1000;
-}
+export { tokenIdFor };
 
 export function dropPath(id: string) {
   return `/drop/${encodeURIComponent(id)}`;
@@ -34,10 +25,16 @@ export function openSeaFindUrl(title: string, creator?: string) {
 }
 
 export function tradeUrl(
-  item: Pick<CatalogItem, "title" | "creator" | "onchain">,
+  item: Pick<CatalogItem, "id" | "title" | "creator" | "onchain">,
 ) {
   if (item.onchain) {
     return openSeaItem(item.onchain.contract, item.onchain.tokenId);
+  }
+  const plate = useOnchain.getState().plates[item.id];
+  if (plate) return openSeaItem(plate.contract, plate.tokenId);
+  const { collection, tapeVersion } = useOnchain.getState();
+  if (collection && tapeVersion === 2) {
+    return openSeaItem(collection, String(tokenIdFor(item.id)));
   }
   return openSeaFindUrl(item.title, item.creator);
 }

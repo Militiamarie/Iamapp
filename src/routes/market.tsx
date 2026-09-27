@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
+import { toast } from "sonner";
 import { CatalogCard } from "@/components/catalog-card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { mergeCatalog } from "@/lib/catalog";
+import { useOnchain } from "@/lib/onchain";
 import { KINDS } from "@/lib/types";
 import { useIam } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -28,6 +31,12 @@ function Market() {
       );
     });
   }, [catalog, kind, q]);
+  const collection = useOnchain((s) => s.collection);
+  const tapeVersion = useOnchain((s) => s.tapeVersion);
+  const foreign = useOnchain((s) => s.foreign);
+  const [bring, setBring] = useState("");
+  const [busy, setBusy] = useState<"altar" | "bring" | null>(null);
+  const houseLive = tapeVersion === 2 && Boolean(collection);
 
   return (
     <div className="pt-6 sm:pt-10">
@@ -36,8 +45,9 @@ function Market() {
       </p>
       <h1 className="mt-1 text-3xl text-ivory uppercase sm:text-4xl">Market</h1>
       <p className="mt-2 max-w-xl text-sm text-ash">
-        Playable 1/1 music NFTs — collect, share the drop, trade on OpenSea.
-        MetaMask, Coinbase Wallet, or the house vault. Press your own in the{" "}
+        Playable 1/1s on one Base contract. OpenSea, Coinbase Wallet, and any
+        other app trade that same token. Paste a token from anywhere and it
+        lands here as itself. Press your own in the{" "}
         <Link to="/mint" className="text-gold">
           studio
         </Link>
@@ -73,6 +83,100 @@ function Market() {
             onClick={() => setKind(k.id)}
           />
         ))}
+      </div>
+
+      <div className="mt-6 rounded-lg bg-obsidian p-4 foil-frame">
+        <p className="text-xs uppercase tracking-[0.18em] text-gold">
+          One contract
+        </p>
+        <p className="mt-2 max-w-xl text-sm text-ash">
+          {houseLive
+            ? `House contract ${collection}. Every stamped 1/1 is that contract plus its token number. Sell it on OpenSea and the wallet that buys it holds the same token.`
+            : "Nothing is tradable until you stamp. Your wallet deploys the I AM contract and mints each tape to you. After that, OpenSea and every other app see the same tokens."}
+        </p>
+        <Button
+          className="mt-4"
+          disabled={busy === "altar"}
+          onClick={async () => {
+            setBusy("altar");
+            const chain = useOnchain.getState();
+            if (!chain.address) {
+              const ok = await chain.connect();
+              if (!ok) {
+                setBusy(null);
+                toast(useOnchain.getState().error || "Connect a wallet first");
+                return;
+              }
+            }
+            const n = await useOnchain.getState().stampHouse(
+              catalog.map((item) => ({
+                title: item.title,
+                blurb: item.blurb,
+                image: item.image,
+                kind: item.kind,
+                creator: item.creator,
+                youtubeId: item.youtubeId,
+                itemId: item.id,
+                hosted: true,
+              })),
+            );
+            setBusy(null);
+            const err = useOnchain.getState().error;
+            if (err && n === 0) toast(err);
+            else toast(n ? `Stamped ${n} on Base` : "Altar already on the contract");
+          }}
+        >
+          {busy === "altar" ? "Stamping the altar" : "Stamp every 1/1"}
+        </Button>
+        <form
+          className="mt-4 flex flex-col gap-2 sm:flex-row"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setBusy("bring");
+            const row = await useOnchain.getState().bringIn(bring);
+            setBusy(null);
+            if (!row) toast(useOnchain.getState().error || "Not a token link");
+            else {
+              toast(`${row.title} is in the house`);
+              setBring("");
+            }
+          }}
+        >
+          <Input
+            value={bring}
+            onChange={(e) => setBring(e.target.value)}
+            placeholder="OpenSea, Blur, or contract/token"
+            aria-label="Bring a token from another app"
+          />
+          <Button type="submit" variant="outline" disabled={busy === "bring" || !bring.trim()}>
+            Bring it in
+          </Button>
+        </form>
+        {foreign.length > 0 ? (
+          <ul className="mt-4 flex flex-col gap-2">
+            {foreign.slice(0, 6).map((row) => (
+              <li
+                key={`${row.chain}:${row.contract}:${row.tokenId}`}
+                className="flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-ivory">{row.title}</p>
+                  <p className="truncate font-mono text-xs text-ash">
+                    {row.chain} · {row.contract.slice(0, 6)}…{row.contract.slice(-4)} · #{row.tokenId}
+                  </p>
+                </div>
+                <a
+                  href={row.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 text-xs uppercase tracking-[0.14em] text-gold"
+                >
+                  Trade
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       {items.length === 0 ? (

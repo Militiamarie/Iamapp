@@ -19,6 +19,19 @@ import {
 } from "./chain";
 import { IAM_TAPE_ABI, IAM_TAPE_BYTECODE } from "./iam-tape";
 import { HOUSE } from "./site";
+import { locateToken, readToken } from "./any-nft";
+import { tokenIdFor } from "./token-id";
+
+export const TAPE_VERSION = 2;
+export const META_ORIGIN = "https://iamapp.vercel.app";
+export const CONTRACT_META = `${META_ORIGIN}/meta/contract.json`;
+/** OpenSea Seaport conduit. Approval lets any marketplace move a listed token. */
+export const OPENSEA_CONDUIT =
+  "0x1E0049783F008A0085193E00003D00cd54003c71" as const;
+
+export function tokenMetaUrl(tokenId: number | string) {
+  return `${META_ORIGIN}/meta/${tokenId}.json`;
+}
 
 export type ChainMint = {
   tx: string;
@@ -43,6 +56,23 @@ export type SendDraft = {
   asset: "ETH" | "USDC";
 };
 
+export type Plate = {
+  contract: string;
+  tokenId: string;
+  tx: string;
+};
+
+export type ForeignToken = {
+  chain: string;
+  contract: string;
+  tokenId: string;
+  title: string;
+  image?: string;
+  owner?: string;
+  url: string;
+  at: number;
+};
+
 type OnchainState = {
   ready: boolean;
   status: "idle" | "connecting" | "ready" | "error";
@@ -55,6 +85,9 @@ type OnchainState = {
   vibenetUsdv: number;
   vibenetDrip?: string;
   collection?: string;
+  tapeVersion: number;
+  plates: Record<string, Plate>;
+  foreign: ForeignToken[];
   collections: Record<string, string>;
   mints: ChainMint[];
   sends: ChainSend[];
@@ -69,6 +102,8 @@ type OnchainState = {
   dripVibenet: () => Promise<string | null>;
   sendOnchain: (draft: SendDraft) => Promise<ChainSend | null>;
   mintTape: (draft: TapeMeta) => Promise<ChainMint | null>;
+  stampHouse: (items: TapeMeta[]) => Promise<number>;
+  bringIn: (raw: string) => Promise<ForeignToken | null>;
 };
 
 export type TapeMeta = {
@@ -79,6 +114,8 @@ export type TapeMeta = {
   creator: string;
   youtubeId?: string;
   itemId?: string;
+  /** House catalog pieces use the hosted OpenSea metadata. Studio mints do not. */
+  hosted?: boolean;
 };
 
 const ERC20_ABI = [
@@ -233,6 +270,193 @@ async function readChainId(eip: Eip1193 | null) {
   }
 }
 
+const ZERO = "0x0000000000000000000000000000000000000000";
+
+type HouseClient = {
+  publicClient: {
+    waitForTransactionReceipt: (args: { hash: `0x${string}` }) => Promise<unknown>;
+    readContract: (args: {
+      address: `0x${string}`;
+      abi: typeof IAM_TAPE_ABI;
+      functionName: "ownerOf" | "isApprovedForAll";
+      args: readonly unknown[];
+    }) => Promise<unknown>;
+  };
+  wallet: {
+    deployContract: (args: {
+      abi: typeof IAM_TAPE_ABI;
+      bytecode: typeof IAM_TAPE_BYTECODE;
+      args: [string, string, string];
+      account: `0x${string}`;
+      chain: typeof baseChain;
+    }) => Promise<`0x${string}`>;
+    writeContract: (args: {
+      address: `0x${string}`;
+      abi: typeof IAM_TAPE_ABI;
+      functionName: "mint" | "mintMany" | "setApprovalForAll";
+      args: readonly unknown[];
+      account: `0x${string}`;
+      chain: typeof baseChain;
+    }) => Promise<`0x${string}`>;
+  };
+};
+
+async function houseClient(address: string): Promise<HouseClient> {
+  if (!provider) throw new Error("Connect a wallet first.");
+  const { createPublicClient, createWalletClient, custom, http } = await loadViem();
+  return {
+    publicClient: createPublicClient({
+      chain: baseChain,
+      transport: http(BASE_RPC),
+    }) as HouseClient["publicClient"],
+    wallet: createWalletClient({
+      account: address as `0x${string}`,
+      chain: baseChain,
+      transport: custom(provider),
+    }) as HouseClient["wallet"],
+  };
+}
+
+function houseKey(address: string) {
+  return `${address.toLowerCase()}:v${TAPE_VERSION}`;
+}
+
+async function ensureCollection(
+  get: () => OnchainState,
+  set: (partial: Partial<OnchainState>) => void,
+  client: HouseClient,
+  address: string,
+) {
+  const current = get();
+  const saved = current.collections[houseKey(address)];
+  if (current.tapeVersion === TAPE_VERSION && (saved || current.collection)) {
+    return (saved || current.collection) as string;
+  }
+  const hash = await client.wallet.deployContract({
+    abi: IAM_TAPE_ABI,
+    bytecode: IAM_TAPE_BYTECODE,
+    args: ["I AM", "IAM", CONTRACT_META],
+    account: address as `0x${string}`,
+    chain: baseChain,
+  });
+  const receipt = (await client.publicClient.waitForTransactionReceipt({
+    hash,
+  })) as { contractAddress?: `0x${string}` | null };
+  if (!receipt.contractAddress) throw new Error("Deploy failed");
+  const collection = receipt.contractAddress;
+  set({
+    collection,
+    tapeVersion: TAPE_VERSION,
+    collections: { ...get().collections, [houseKey(address)]: collection },
+  });
+  return collection;
+}
+
+function rememberPlate(
+  set: (partial: Partial<OnchainState>) => void,
+  get: () => OnchainState,
+  itemId: string,
+  contract: string,
+  tokenId: string,
+  tx: string,
+) {
+  const row: ChainMint = {
+    tx,
+    contract,
+    tokenId,
+    title: itemId,
+    itemId,
+    at: Date.now(),
+  };
+  set({
+    plates: {
+      ...get().plates,
+      [itemId]: { contract, tokenId, tx },
+    },
+    mints: [row, ...get().mints.filter((m) => m.itemId !== itemId)].slice(0, 80),
+  });
+}
+
+async function approveConduit(
+  client: HouseClient,
+  collection: string,
+  address: string,
+) {
+  const approved = await client.publicClient.readContract({
+    address: collection as `0x${string}`,
+    abi: IAM_TAPE_ABI,
+    functionName: "isApprovedForAll",
+    args: [address as `0x${string}`, OPENSEA_CONDUIT],
+  });
+  if (approved === true) return;
+  const hash = await client.wallet.writeContract({
+    address: collection as `0x${string}`,
+    abi: IAM_TAPE_ABI,
+    functionName: "setApprovalForAll",
+    args: [OPENSEA_CONDUIT, true],
+    account: address as `0x${string}`,
+    chain: baseChain,
+  });
+  await client.publicClient.waitForTransactionReceipt({ hash });
+}
+
+async function stampOne(
+  get: () => OnchainState,
+  set: (partial: Partial<OnchainState>) => void,
+  draft: TapeMeta,
+): Promise<ChainMint | null> {
+  const { address } = get();
+  if (!address || !provider) {
+    set({ error: "Connect a wallet first." });
+    return null;
+  }
+  try {
+    await ensureBase(provider);
+    const client = await houseClient(address);
+    const collection = await ensureCollection(get, set, client, address);
+    const tokenId = tokenIdFor(draft.itemId || draft.title);
+    const uri = draft.hosted ? tokenMetaUrl(tokenId) : metadataUri(draft);
+    const holder = await client.publicClient.readContract({
+      address: collection as `0x${string}`,
+      abi: IAM_TAPE_ABI,
+      functionName: "ownerOf",
+      args: [BigInt(tokenId)],
+    });
+    let tx = "already";
+    if (String(holder).toLowerCase() === ZERO) {
+      tx = await client.wallet.writeContract({
+        address: collection as `0x${string}`,
+        abi: IAM_TAPE_ABI,
+        functionName: "mint",
+        args: [address as `0x${string}`, BigInt(tokenId), uri],
+        account: address as `0x${string}`,
+        chain: baseChain,
+      });
+      await client.publicClient.waitForTransactionReceipt({
+        hash: tx as `0x${string}`,
+      });
+    }
+    await approveConduit(client, collection, address);
+    if (draft.itemId) {
+      rememberPlate(set, get, draft.itemId, collection, String(tokenId), tx);
+    }
+    const row: ChainMint = {
+      tx,
+      contract: collection,
+      tokenId: String(tokenId),
+      title: draft.title,
+      itemId: draft.itemId,
+      at: Date.now(),
+    };
+    set({ chainId: BASE_ID, error: undefined });
+    await get().refresh();
+    return row;
+  } catch (err) {
+    set({ error: errMsg(err) });
+    return null;
+  }
+}
+
 export const useOnchain = create<OnchainState>()(
   persist(
     (set, get) => ({
@@ -243,6 +467,9 @@ export const useOnchain = create<OnchainState>()(
       vibenetEth: 0,
       vibenetUsdv: 0,
       collections: {},
+      plates: {},
+      foreign: [],
+      tapeVersion: 0,
       mints: [],
       sends: [],
       connect: async (given) => {
@@ -495,88 +722,107 @@ export const useOnchain = create<OnchainState>()(
         }
       },
       mintTape: async (draft) => {
-        const { address, collections } = get();
+        const row = await stampOne(get, set, draft);
+        return row;
+      },
+      stampHouse: async (items) => {
+        const { address } = get();
         if (!address || !provider) {
           set({ error: "Connect a wallet first." });
-          return null;
+          return 0;
         }
         try {
           await ensureBase(provider);
-          const {
-            createPublicClient,
-            createWalletClient,
-            custom,
-            decodeEventLog,
-            http,
-          } = await loadViem();
-          const publicClient = createPublicClient({
-            chain: baseChain,
-            transport: http(BASE_RPC),
+          const client = await houseClient(address);
+          const collection = await ensureCollection(get, set, client, address);
+          const pending = items.filter((item) => {
+            const id = String(tokenIdFor(item.itemId || item.title));
+            const plate = get().plates[item.itemId || ""];
+            return item.itemId && plate?.tokenId !== id;
           });
-          const wallet = createWalletClient({
-            account: address as `0x${string}`,
-            chain: baseChain,
-            transport: custom(provider),
-          });
-          let collection = collections[address] ?? get().collection;
-          if (!collection) {
-            const hash = await wallet.deployContract({
+          let stamped = 0;
+          for (let i = 0; i < pending.length; i += 12) {
+            const chunk = pending.slice(i, i + 12);
+            const ids = chunk.map((item) =>
+              BigInt(tokenIdFor(item.itemId || item.title)),
+            );
+            const uris = chunk.map((item) => tokenMetaUrl(tokenIdFor(item.itemId || item.title)));
+            const freeIds: bigint[] = [];
+            const freeUris: string[] = [];
+            const freeItems: TapeMeta[] = [];
+            for (let n = 0; n < ids.length; n++) {
+              const holder = await client.publicClient.readContract({
+                address: collection as `0x${string}`,
+                abi: IAM_TAPE_ABI,
+                functionName: "ownerOf",
+                args: [ids[n]],
+              });
+              if (holder === "0x0000000000000000000000000000000000000000") {
+                freeIds.push(ids[n]);
+                freeUris.push(uris[n]);
+                freeItems.push(chunk[n]);
+              } else if (chunk[n].itemId) {
+                rememberPlate(set, get, chunk[n].itemId!, collection, ids[n].toString(), "already");
+              }
+            }
+            if (!freeIds.length) continue;
+            const hash = await client.wallet.writeContract({
+              address: collection as `0x${string}`,
               abi: IAM_TAPE_ABI,
-              bytecode: IAM_TAPE_BYTECODE,
-              args: ["I AM", "IAM"],
+              functionName: "mintMany",
+              args: [address as `0x${string}`, freeIds, freeUris],
               account: address as `0x${string}`,
               chain: baseChain,
             });
-            const receipt = await publicClient.waitForTransactionReceipt({
-              hash,
-            });
-            if (!receipt.contractAddress) throw new Error("Deploy failed");
-            collection = receipt.contractAddress;
-            set({
-              collection,
-              collections: { ...collections, [address]: collection },
-            });
-          }
-          const uri = metadataUri(draft);
-          const hash = await wallet.writeContract({
-            address: collection as `0x${string}`,
-            abi: IAM_TAPE_ABI,
-            functionName: "mint",
-            args: [uri],
-            account: address as `0x${string}`,
-            chain: baseChain,
-          });
-          const receipt = await publicClient.waitForTransactionReceipt({ hash });
-          let tokenId = "0";
-          for (const log of receipt.logs) {
-            try {
-              const parsed = decodeEventLog({
-                abi: IAM_TAPE_ABI,
-                data: log.data,
-                topics: log.topics,
-              });
-              if (parsed.eventName === "Transfer") {
-                tokenId = String(parsed.args.tokenId);
-              }
-            } catch {
-              /* other logs */
+            await client.publicClient.waitForTransactionReceipt({ hash });
+            for (const item of freeItems) {
+              if (!item.itemId) continue;
+              rememberPlate(
+                set,
+                get,
+                item.itemId,
+                collection,
+                String(tokenIdFor(item.itemId)),
+                hash,
+              );
+              stamped += 1;
             }
           }
-          const row: ChainMint = {
-            tx: hash,
-            contract: collection,
-            tokenId,
-            title: draft.title,
-            itemId: draft.itemId,
-            at: Date.now(),
-          };
-          set({ mints: [row, ...get().mints], chainId: BASE_ID });
+          await approveConduit(client, collection, address);
+          set({ chainId: BASE_ID, error: undefined });
           await get().refresh();
-          return row;
+          return stamped;
         } catch (err) {
           set({ error: errMsg(err) });
+          return 0;
+        }
+      },
+      bringIn: async (raw) => {
+        const loc = locateToken(raw);
+        if (!loc) {
+          set({ error: "Need an OpenSea item link, or a contract and token number." });
           return null;
         }
+        const key = `${loc.chain}:${loc.contract.toLowerCase()}:${loc.tokenId}`;
+        const read = await readToken(loc);
+        const row: ForeignToken = {
+          chain: loc.chain,
+          contract: loc.contract,
+          tokenId: loc.tokenId,
+          title: read.title,
+          image: read.image,
+          owner: read.owner,
+          url: loc.url,
+          at: Date.now(),
+        };
+        set({
+          foreign: [row, ...get().foreign.filter(
+            (f) =>
+              `${f.chain}:${f.contract.toLowerCase()}:${f.tokenId}` !== key,
+          )].slice(0, 40),
+          error: undefined,
+        });
+        return row;
       },
     }),
     {
@@ -585,6 +831,9 @@ export const useOnchain = create<OnchainState>()(
       partialize: (s) => ({
         collections: s.collections,
         collection: s.collection,
+        tapeVersion: s.tapeVersion,
+        plates: s.plates,
+        foreign: s.foreign,
         mints: s.mints,
         sends: s.sends,
       }),
