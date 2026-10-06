@@ -1,37 +1,32 @@
-# Payment Action Plan — October 2026
+# Payment Action Plan — Tonight
 
-**Prepared for:** Melitia Marie / Mad Souls Family
+All amounts in **USD**. Total tonight: **$2,849**.
 
-## Status
+## Step 1 — Transfer USD from CDP
 
-- **Pep Boys ($1,700):** Shop closed. Call tomorrow for itemized balance and payment arrangement. Lien window is roughly two weeks — this is the priority call.
-- **BWP ($700):** Payable now — online, app, phone, or in person.
-- **Verizon ($449):** Payable now — online, app, phone, or in person.
+Move $2,849 USD from the CDP account to the Coinbase fiat balance. Instant. The Coinbase card then spends directly from that balance.
 
-## BWP — $700, Melissa Fernandez
+## Step 2 — Check the card limit
 
-- Portal: burbankwaterandpower.com → Pay My Bill
-- Phone: 818-238-3700
-- In person: 164 W. Magnolia Blvd, Burbank
-- Split if needed: $350 today, $350 within 7 days
+Confirm the Coinbase card's daily spending limit covers $2,849. Raise it in settings if needed.
 
-## Verizon — $449, Melody Fernandez
+## Step 3 — Pay BWP ($700)
 
-- Portal: verizon.com → My Verizon → Pay Bill
-- Phone: 1-800-922-0204
-- In person: any Verizon store
-- Split if needed: $225 today, $224 within 7 days
-- Turn on autopay after paying
+burbankwaterandpower.com — electricity. This is the domino: power off stops everything.
 
-## Pep Boys — $1,700 (tomorrow)
+## Step 4 — Pay Verizon ($449)
 
-- Call for itemized balance in writing
-- Ask about partial payment or arrangement to stop storage fees
-- Get receipt and release form before final payment
-- Verify vehicle is drivable before leaving
+verizon.com — business phone line.
 
-## Total: $2,849
+## Step 5 — Pay Pep Boys ($1,700)
 
----
+pepboys.com or the app. Get the itemized receipt in writing. Ask whether the lien is filed or pending. If filed, request the written lien release letter and REG 166 confirmation.
 
-*Prepared for Melitia Marie / Mad Souls Family — October 2026*
+## Step 6 — Confirm car release
+
+Ask Pep Boys directly when the vehicle will be released. Get it in writing.
+
+## Tomorrow
+
+- George Fernandez Silverado insurance call: commercial policy under the sole proprietorship. Have VIN, mileage, and business use ready.
+- Pep Boys follow-up if anything slipped.

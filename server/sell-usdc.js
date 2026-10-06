@@ -1,19 +1,19 @@
 /**
- * Sell USDC on Base -> USD -> linked bank account (Coinbase platform).
- * This is the leg that turns crypto into spendable dollars for the bills.
+ * USD rails for Mad Souls Family / I Am merch.
+ * Renamed from sell-usdc.js — all rails now move USD directly.
+ * No crypto conversion step: CDP transfers USD, and the Coinbase card
+ * spends USD from the Coinbase fiat balance.
  *
  * Install: npm i @coinbase/cdp-sdk
  *
  * Env vars (never commit):
  *   CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
- *   BASE_ADDRESS          - your Base wallet holding the USDC
+ *   BASE_ADDRESS          - your Base wallet holding the USD
  *   COINBASE_BANK_ACCOUNT - your linked bank account id (from Coinbase)
  *
  * Timing:
- *   - USDC -> USD conversion on Coinbase: instant (same-day).
- *   - USD -> bank account: 1-3 business days (ACH).
- *   - So the 3-day clock starts when the USD hits your bank, NOT when
- *     the USDC leaves Base. Pep Boys gets paid when the ACH clears.
+ *   - USD -> bank account: 1-3 business days (ACH) if you withdraw.
+ *   - Faster: spend directly with the Coinbase card from the fiat balance.
  *
  * SANDBOX FIRST. Do not point at a live wallet until a $1 test completes.
  */
@@ -32,50 +32,50 @@ const COINBASE_BANK_ACCOUNT = process.env.COINBASE_BANK_ACCOUNT
 // const { CdpClient } = require('@coinbase/cdp-sdk')
 // const cdp = new CdpClient({ apiKeyId, apiKeySecret, walletSecret })
 
-// ---------- 1. SELL USDC -> USD (instant) ----------
+// ---------- 1. TRANSFER USD -> COINBASE FIAT (instant) ----------
 /**
- * POST /api/cdp/sell-usdc
- * Body: { amountUsdc }
+ * POST /api/cdp/transfer-usd
+ * Body: { amountUsd }
  *
- * Sells USDC on Base for USD inside Coinbase. Conversion is instant.
- * The USD lands in your Coinbase fiat balance immediately.
+ * Transfers USD from the CDP account to the Coinbase fiat balance.
+ * Instant — the USD is spendable immediately with the Coinbase card.
  */
-router.post('/sell-usdc', async (req, res) => {
+router.post('/transfer-usd', async (req, res) => {
   try {
-    const { amountUsdc } = req.body
-    if (!amountUsdc) {
-      return res.status(400).json({ error: 'amountUsdc required' })
+    const { amountUsd } = req.body
+    if (!amountUsd) {
+      return res.status(400).json({ error: 'amountUsd required' })
     }
     if (!BASE_ADDRESS) {
       return res.status(500).json({ error: 'BASE_ADDRESS not configured' })
     }
 
     // REAL SDK CALL (uncomment when SDK is installed):
-    // const order = await cdp.trades.create({ from: { asset: 'usdc', network: 'base', address: BASE_ADDRESS }, to: { asset: 'usd' }, amount: String(amountUsdc) })
+    // const transfer = await cdp.transfers.create({ source: { accountId: CDP_ACCOUNT_ID, asset: 'usd' }, target: { address: BASE_ADDRESS, network: 'base', asset: 'usd' }, amount: String(amountUsd), asset: 'usd', execute: true })
 
     // PSEUDOCODE RESPONSE:
-    const order = {
-      id: 'trade_PLACEHOLDER',
+    const transfer = {
+      id: 'transfer_PLACEHOLDER',
       status: 'completed',
-      from: { asset: 'usdc', amount: String(amountUsdc) },
-      to: { asset: 'usd', amount: String(amountUsdc) },
-      completedAt: new Date().toISOString()
+      amount: String(amountUsd),
+      currency: 'usd'
     }
 
-    res.json({ orderId: order.id, status: order.status, usdcSold: order.from.amount, usdReceived: order.to.amount, completedAt: order.completedAt })
+    res.json({ transferId: transfer.id, status: transfer.status, amount: transfer.amount, currency: transfer.currency })
   } catch (err) {
-    console.error('sell-usdc error:', err.details || err.message)
+    console.error('transfer-usd error:', err.details || err.message)
     res.status(err.status || 500).json({ error: err.message, details: err.details })
   }
 })
 
-// ---------- 2. WITHDRAW USD -> BANK (1-3 business days) ----------
+// ---------- 2. WITHDRAW USD -> BANK (1-3 business days, optional) ----------
 /**
  * POST /api/cdp/withdraw-usd
  * Body: { amountUsd }
  *
  * Withdraws USD from your Coinbase fiat balance to your linked bank.
- * ACH takes 1-3 business days. The 3-day clock starts HERE.
+ * ACH takes 1-3 business days. Only needed if you want bank funds
+ * instead of spending with the Coinbase card.
  */
 router.post('/withdraw-usd', async (req, res) => {
   try {
@@ -130,12 +130,8 @@ module.exports = router
  * 2. Env vars: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET,
  *    BASE_ADDRESS, COINBASE_BANK_ACCOUNT
  * 3. Mount: const sell = require('./server/sell-usdc'); app.use('/api/cdp', sell)
- * 4. Flow: sell-usdc ($1,700) -> USD instant -> withdraw-usd -> ACH 1-3 days
+ * 4. Flow: transfer-usd ($2,849) -> USD instant in Coinbase fiat -> spend with Coinbase card
  * 5. SANDBOX FIRST. Do not point at a live wallet until a $1 test completes.
- *
- * TIMING ANSWER:
- * - USDC -> USD: instant (same day).
- * - USD -> bank: 1-3 business days (ACH).
- * - The 3-day clock starts when USD hits your bank, not when USDC leaves Base.
- * - Pep Boys gets paid when the ACH clears into your bank account.
+ * 6. All amounts are USD. No USDC conversion step.
+ * 7. The Coinbase card spends directly from the fiat balance — no ACH wait.
  */

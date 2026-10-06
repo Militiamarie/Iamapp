@@ -1,29 +1,25 @@
-# George Fernandez — 2025 Chevy Silverado Work Truck
+# George's Silverado — Work Vehicle
 
-**Employee:** George Fernandez
-**Vehicle:** 2025 Chevy Silverado (work truck)
-**Purpose:** Business vehicle for Mad Souls Family / I Am operations.
+All amounts in **USD**.
 
-## Monthly costs
+- Owner: George Fernandez (employee)
+- Vehicle: 2025 Chevy Silverado (work truck)
+- Payment: $1,100/month
+- Insurance: $430/month
+- **Total: $1,530/month**
 
-| Item | Amount |
-| --- | --- |
-| Truck payment | $1,100.00 |
-| Insurance | $430.00 |
-| **Total monthly** | **$1,530.00** |
+## Business use
 
-## Payment schedule
+The truck goes under the sole proprietorship as a work vehicle on a commercial auto policy. Commercial insurance runs higher than personal, so the $430 could increase.
 
-- Truck payment: due monthly on the lender's due date — confirm exact date with George.
-- Insurance: due monthly on the policy renewal date — confirm with the insurer.
-- Both should be paid on time to avoid late fees and coverage lapses.
+## Before the insurance switch
 
-## Notes
+- Confirm the business entity (sole proprietorship) is active.
+- Call George's insurer: ask about adding the Silverado to a commercial policy under the sole proprietorship.
+- Have ready: VIN, mileage, business use (deliveries, equipment runs).
+- Ask whether the policy names the business as named insured, not just George personally.
+- Ask what documents they need.
 
-- Insurance must stay active — a lapse on a work vehicle is a liability risk for the business.
-- If the truck is financed, the lender holds the title until the loan is paid off. Verify the loan is in good standing before adding the vehicle to business operations.
-- Keep payment confirmations with the business records.
+## Loan note
 
----
-
-*Prepared for Melitia Marie / Mad Souls Family — October 2026*
+If the loan is in George's personal name, the business cannot claim the $1,100 as an operating expense — it stays his personal obligation. The business can reimburse him, but the loan itself stays his.

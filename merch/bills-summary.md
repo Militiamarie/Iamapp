@@ -1,43 +1,35 @@
-# Bills Summary — Mad Souls Family Operating Costs
+# Bills Summary — Mad Souls Family / I Am
 
-**Prepared for:** Melitia Marie / Mad Souls Family
-**Date:** October 2026
+All amounts in **USD**.
 
-## Total outstanding: $4,379.00
+## Tonight's payments ($2,849 total)
 
-| Bill | Amount | Account | Urgency |
-| --- | --- | --- | --- |
-| Burbank Water and Power (BWP) | $700.00 | Melissa Fernandez | Pay first — shutoff risk |
-| Verizon business phone | $449.00 | Melody Fernandez | Pay second — suspension risk |
-| Pep Boys vehicle recovery | $1,700.00 | Work vehicle | Pay third — lien risk, storage fees climbing |
-| George Fernandez truck payment | $1,100.00 | 2025 Chevy Silverado | Monthly — due date TBD |
-| George Fernandez insurance | $430.00 | 2025 Chevy Silverado | Monthly — due date TBD |
+| Bill | Amount | Portal |
+|------|--------|--------|
+| BWP (electricity) | $700 | burbankwaterandpower.com |
+| Verizon (business phone) | $449 | verizon.com |
+| Pep Boys (work vehicle) | $1,700 | pepboys.com |
 
-## Suggested payment order
+**Total tonight: $2,849**
 
-1. **BWP — $700.** Electricity is the foundation. No power, no studio, no build. Pay today if possible.
-2. **Verizon — $449.** The business line is the front door. Suspension kills customer contact.
-3. **Pep Boys — $1,700.** The vehicle is mobility. Two weeks in storage means fees are already climbing, and a lien would be the worst outcome.
-4. **George's truck payment — $1,100.** Monthly obligation, due on the lender's date.
-5. **George's insurance — $430.** Monthly obligation, due on the policy date.
+## Recurring monthly
 
-## If funds are short
+| Item | Amount |
+|------|--------|
+| George's Silverado payment | $1,100 |
+| George's Silverado insurance | $430 |
+| **Total monthly** | **$1,530** |
 
-- BWP: $350 today, $350 within 7 days.
-- Verizon: $225 today, $224 within 7 days.
-- Pep Boys: $850 today, $850 within 7 days. Call ahead and ask about a payment arrangement — storage fees stop once the vehicle is out.
+## Payment method
 
-## Before paying Pep Boys
+Coinbase card (active, linked) — spends directly from the Coinbase fiat balance after the USD transfer lands. No ACH wait.
 
-- Get the itemized bill in writing — every charge listed.
-- Ask for a receipt and a release form once payment clears.
-- Verify the vehicle is drivable before leaving the lot.
+## Order of operations
 
-## After payment
+1. BWP first — power off stops everything.
+2. Verizon second — business line stays on.
+3. Pep Boys third — get the itemized receipt and lien status in writing.
 
-- Screenshot or save every confirmation number.
-- Keep these files with the merch launch documents.
+## Pep Boys lien note
 
----
-
-*Prepared for Melitia Marie / Mad Souls Family — October 2026*
+At roughly two weeks, the lien window is open. Ask directly whether a lien is filed or pending. If filed, request a written lien release letter and confirmation that Pep Boys filed form REG 166 with the DMV.
