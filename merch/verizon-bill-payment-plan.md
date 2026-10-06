@@ -2,6 +2,7 @@
 
 **Account holder:** Melody Fernandez (employee)
 **Carrier:** Verizon
+**Amount due:** $449.00
 **Purpose:** Keep the business phone line on — the line Mad Souls Family / I Am runs on for orders, outreach, and customer contact.
 
 ## Why this bill matters
@@ -20,10 +21,10 @@ The business phone is the front door of the operation. No phone, no orders, no o
 
 | Payment | Amount | When |
 | --- | --- | --- |
-| Part 1 | Half the balance | Today — stops any suspension risk |
-| Part 2 | Remaining half | Within 7 days |
+| Part 1 | $225 | Today — stops any suspension risk |
+| Part 2 | $224 | Within 7 days |
 
-Or one payment of the full balance if funds allow.
+Or one payment of $449 if funds allow.
 
 ## After payment
 
