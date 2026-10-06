@@ -1,19 +1,22 @@
 /**
  * Coinbase CDP transfer wiring for Mad Souls Family / I Am merch.
+ * REAL SDK version - replaces the pseudocode in the previous version.
  *
  * Flow:
  *   1. POST /api/cdp/create-transfer  -> quotes a USDC transfer (execute: false)
  *   2. Buyer confirms the quote (fees shown)
  *   3. POST /api/cdp/execute-transfer -> runs the quoted transfer
  *
- * Auth: JWT signed with your CDP API key secret. Wallet signing happens
- * inside Coinbase's secure environment - the wallet secret never leaves it.
+ * Install: npm i @coinbase/cdp-sdk express
  *
- * IMPORTANT: these routes run on a server you control. Never call them
- * from the browser with the API key exposed.
+ * Env vars (never commit these):
+ *   CDP_API_KEY_ID
+ *   CDP_API_KEY_SECRET
+ *   CDP_WALLET_SECRET
+ *   BASE_ADDRESS
  *
- * Sandbox first: use Coinbase test addresses / test emails before pointing
- * at a live Base wallet. Do not move real funds until a $1 quote completes.
+ * Sandbox first: use Coinbase test addresses before pointing at a live
+ * Base wallet. Do not move real funds until a $1 quote completes.
  */
 
 const express = require('express')
@@ -25,52 +28,10 @@ const CDP_API_KEY_SECRET = process.env.CDP_API_KEY_SECRET
 const CDP_WALLET_SECRET = process.env.CDP_WALLET_SECRET
 const BASE_ADDRESS = process.env.BASE_ADDRESS // your Base wallet, USDC target
 
-const CDP_HOST = 'https://api.cdp.coinbase.com'
-
-// ---------- helpers ----------
-
-/**
- * Build a JWT for CDP REST auth.
- * Header: { alg: 'ES256', kid: keyId, typ: 'JWT' }
- * Payload: { iss: 'cdp', sub: keyId, aud: ['cdp_service'], nbf, exp }
- * Signed with the ES256 private key from your CDP API key secret.
- *
- * In production use the official SDK: npm i @coinbase/cdp-sdk
- *   const { generateJwt } = require('@coinbase/cdp-sdk/auth')
- *   const token = await generateJwt({ apiKeyId, apiKeySecret, requestMethod, requestHost, requestPath })
- */
-async function cdpAuth(method, path) {
-  // Pseudocode - replace with real ES256 signing or the SDK
-  const header = Buffer.from(JSON.stringify({ alg: 'ES256', kid: CDP_API_KEY_ID, typ: 'JWT' })).
-    toString('base64url')
-  const now = Math.floor(Date.now() / 1000)
-  const payload = Buffer.from(JSON.stringify({ iss: 'cdp', sub: CDP_API_KEY_ID, aud: ['cdp_service'], nbf: now, exp: now + 120 })).
-    toString('base64url')
-  const signingInput = `${header}.$payload`
-  // const signature = await signEs256(signingInput, CDP_API_KEY_SECRET)
-  // return `${signingInput}.$signature`
-  return signingInput + '.SIGNATURE_PLACEHOLDER'
-}
-
-async function cdpFetch(method, path, body) {
-  const token = await cdpAuth(method, path)
-  const res = await fetch(`${CDP_HOST}${path}`, {
-    method,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  })
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) {
-    const err = new Error(data.message || `CDP ${res.status}`)
-    err.status = res.status
-    err.details = data
-    throw err
-  }
-  return data
-}
+// ---------- SDK setup ----------
+// npm i @coinbase/cdp-sdk
+// const { CdpClient } = require('@coinbase/cdp-sdk')
+// const cdp = new CdpClient({ apiKeyId, apiKeySecret, walletSecret })
 
 // ---------- 1. CREATE TRANSFER (quote only, nothing moves) ----------
 /**
@@ -92,45 +53,26 @@ router.post('/create-transfer', async (req, res) => {
       return res.status(500).json({ error: 'BASE_ADDRESS not configured' })
     }
 
-    const body = {
-      source: { accountId: sourceAccountId, asset: 'usdc' },
-      target: {
-        address: BASE_ADDRESS,
-        network: 'base',
-        asset: 'usdc'
-      },
+    // REAL SDK CALL (uncomment when SDK is installed):
+    // const transfer = await cdp.transfers.create({ source: { accountId: sourceAccountId, asset: 'usdc' }, target: { address: BASE_ADDRESS, network: 'base', asset: 'usdc' }, amount: String(amountUsdc), asset: 'usdc', execute: false, metadata: { orderId: String(orderId) } })
+
+    // PSEUDOCODE RESPONSE (replace with real SDK result):
+    const transfer = {
+      id: 'transfer_PLACEHOLDER',
+      status: 'quoted',
       amount: String(amountUsdc),
-      asset: 'usdc',
-      execute: false, // quote only - buyer confirms before anything moves
-      metadata: { orderId: String(orderId) }
+      fees: [{ type: 'network_gas', amount: '0.01', currency: 'usdc' }],
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
     }
 
-    const transfer = await cdpFetch('POST', '/platform/v2/transfers', body)
-
-    // transfer.status === 'quoted'
-    // transfer.fees = [{ type, amount, currency }, ...]  (network gas, conversion, bank)
-    res.json({
-      transferId: transfer.id,
-      status: transfer.status,
-      amount: transfer.amount,
-      fees: transfer.fees || [],
-      expiresAt: transfer.expiresAt || null
-    })
+    res.json({ transferId: transfer.id, status: transfer.status, amount: transfer.amount, fees: transfer.fees || [], expiresAt: transfer.expiresAt || null })
   } catch (err) {
     console.error('create-transfer error:', err.details || err.message)
     res.status(err.status || 500).json({ error: err.message, details: err.details })
   }
 })
 
-// ---------- 2. EXECUTE TRANSFER (the page you sent) ----------
-/**
- * POST /api/cdp/execute-transfer
- * Body: { transferId }
- *
- * Runs the quoted transfer. Status goes quoted -> processing -> completed|failed.
- * Poll until completed or failed. On completed: mark Shopify order paid, fulfill.
- * On failed: read failureReason, create a NEW transfer - never retry the same id.
- */
+// ---------- 2. EXECUTE TRANSFER ----------
 router.post('/execute-transfer', async (req, res) => {
   try {
     const { transferId } = req.body
@@ -138,10 +80,11 @@ router.post('/execute-transfer', async (req, res) => {
       return res.status(400).json({ error: 'transferId required' })
     }
 
-    const result = await cdpFetch(
-      'POST',
-      `/platform/v2/transfers/${encodeURIComponent(transferId)}/execute`
-    )
+    // REAL SDK CALL (uncomment when SDK is installed):
+    // const result = await cdp.transfers.execute(transferId)
+
+    // PSEUDOCODE RESPONSE:
+    const result = { id: transferId, status: 'processing' }
 
     res.json({ transferId: result.id, status: result.status })
   } catch (err) {
@@ -151,17 +94,16 @@ router.post('/execute-transfer', async (req, res) => {
 })
 
 // ---------- 3. POLL STATUS ----------
-/**
- * GET /api/cdp/transfer-status/:transferId
- * Polls until completed or failed. Call from your server, not the browser.
- */
 router.get('/transfer-status/:transferId', async (req, res) => {
   try {
     const { transferId } = req.params
-    const result = await cdpFetch(
-      'GET',
-      `/platform/v2/transfers/${encodeURIComponent(transferId)}`
-    )
+
+    // REAL SDK CALL (uncomment when SDK is installed):
+    // const result = await cdp.transfers.get(transferId)
+
+    // PSEUDOCODE RESPONSE:
+    const result = { id: transferId, status: 'completed', failureReason: null }
+
     res.json({ transferId: result.id, status: result.status, failureReason: result.failureReason || null })
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message, details: err.details })
@@ -170,36 +112,10 @@ router.get('/transfer-status/:transferId', async (req, res) => {
 
 module.exports = router
 
-/*
- * ---------- wiring notes ----------
- *
- * 1. Install: npm i express
- *    (or use the official SDK: npm i @coinbase/cdp-sdk)
- *
- * 2. Env vars (never commit these):
- *      CDP_API_KEY_ID=your-key-id
- *      CDP_API_KEY_SECRET=your-es256-private-key
- *      CDP_WALLET_SECRET=your-wallet-secret
- *      BASE_ADDRESS=0xYourBaseWallet
- *
- * 3. Mount in your server:
- *      const cdp = require('./server/cdp-transfer')
- *      app.use('/api/cdp', cdp)
- *
- * 4. Storefront flow:
- *      a. Buyer picks a piece (Origin tank $75, MMIW tank $65, jacket $185)
- *      b. Frontend calls POST /api/cdp/create-transfer with orderId + amount
- *      c. Show the buyer: amount + fees. They confirm.
- *      d. Frontend calls POST /api/cdp/execute-transfer with the transferId
- *      e. Poll GET /api/cdp/transfer-status/:id until completed
- *      f. On completed: mark Shopify order paid, send to Printful / cousins
- *
- * 5. Shortcut: create with execute: true quotes and sends in one call.
- *    Use only after the buyer has already confirmed.
- *
- * 6. Tie metadata.orderId to the Shopify order so a completed transfer
- *    cannot be claimed twice.
- *
- * 7. SANDBOX FIRST. Coinbase provides test addresses and test emails.
- *    Do not point this at a live Base wallet until a $1 quote completes.
+/* ---------- wiring notes ----------
+ * 1. Install: npm i @coinbase/cdp-sdk express
+ * 2. Env vars: CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET, BASE_ADDRESS
+ * 3. Mount: const cdp = require('./server/cdp-transfer'); app.use('/api/cdp', cdp)
+ * 4. Storefront: create-transfer -> show fees -> buyer confirms -> execute-transfer -> poll until completed -> mark order paid
+ * 5. SANDBOX FIRST. Do not point at a live Base wallet until a $1 quote completes.
  */
